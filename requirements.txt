@@ -1,1 +1,1 @@
-# No external dependencies. Python 3.9+ standard library only.
+# No third-party dependencies. Python 3.9+ standard library only.

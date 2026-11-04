@@ -1,66 +1,68 @@
-# Portable Notes Web
+# Portable Notes
 
-A private, local-first Markdown knowledge base inspired by Obsidian, Notepad++, and OneNote. It runs in your browser on `localhost`, requires no cloud account, and stores everything in a local SQLite database.
+[![Release](https://img.shields.io/github/v/release/iwebslogtech/Portable-Notes)](https://github.com/iwebslogtech/Portable-Notes/releases)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/)
+[![Local First](https://img.shields.io/badge/storage-local--first-6b5cf5.svg)](#privacy-and-data)
 
-## Highlights
+A private, local-first Markdown notes and personal knowledge-management application inspired by Obsidian, OneNote, Notepad++, and VS Code.
 
-- Markdown editor with live Reader and split view
-- Obsidian-style `[[wiki links]]`, outgoing links, and backlinks
-- Fast full-text search across titles, content, folders, and tags
-- Folders, tags, favorites, pinned notes, trash, and autosave
-- Light/dark themes and keyboard shortcuts
-- ZIP export containing Markdown files plus a JSON backup
-- Responsive interface and 100% local storage
-- No third-party Python packages required
+**Repository:** https://github.com/iwebslogtech/Portable-Notes
+
+## What's new in 2.1.0
+
+- Markdown files are now the source of truth
+- Select a custom vault with `python app.py --vault PATH`
+- Nested folders and file-tree navigation
+- YAML front matter for stable metadata
+- Disposable SQLite search and backlink index
+- External file-change detection
+- Rename-safe wiki-link updates
+- Daily notes, templates, command palette, favorites, and pinning
+- Portable Markdown ZIP export
+- Internal recoverable trash
+- Updated GitHub community and release metadata
 
 ## Run
 
 ```bash
-git clone https://github.com/YOUR-USERNAME/portable-notes-web.git
-cd portable-notes-web
+git clone https://github.com/iwebslogtech/Portable-Notes.git
+cd Portable-Notes
 python app.py
 ```
 
-The app opens at <http://127.0.0.1:8765>. Press `Ctrl+C` in the terminal to stop it.
+Open `http://127.0.0.1:8765`, or simply double-click `start.bat` on Windows.
 
-### Windows shortcut
+### Custom vault
 
-Double-click `start.bat`.
+```bash
+python app.py --vault "D:\Notes\My Vault"
+```
+
+## Privacy and data
+
+Your notes are ordinary `.md` files under `vault/` by default. The generated `data/index.db` is only a replaceable search index. Portable Notes binds to `127.0.0.1`, includes no telemetry, and requires no account.
+
+Back up the `vault/` directory or use the Export button. You can open the same notes with Obsidian, Notepad++, VS Code, or any Markdown editor.
 
 ## Keyboard shortcuts
 
-- `Ctrl+N`: New note
-- `Ctrl+S`: Save now
-- `Ctrl+K`: Focus search
-- `Ctrl+Shift+P`: Cycle editor, split, and reader modes
+| Shortcut | Action |
+|---|---|
+| `Ctrl+N` | New note |
+| `Ctrl+S` | Save |
+| `Ctrl+K` | Search |
+| `Ctrl+Shift+P` | Command palette |
 
-## Data and privacy
+## Documentation
 
-Notes are stored in `data/notes.db`. The server binds only to `127.0.0.1`, so it is not exposed to other devices. Use Export regularly for portable Markdown backups. Do not commit the `data/` directory.
-
-## Project structure
-
-```text
-portable-notes-web/
-├── app.py
-├── static/
-│   ├── index.html
-│   ├── style.css
-│   └── app.js
-├── data/
-├── start.bat
-├── start.sh
-├── LICENSE
-├── CONTRIBUTING.md
-├── SECURITY.md
-├── CHANGELOG.md
-└── .github/
-```
-
-## Roadmap
-
-See [ROADMAP.md](ROADMAP.md). Suggested next milestones include note attachments, nested folders, database encryption, graph view, and optional sync adapters.
+- [User guide](docs/USER_GUIDE.md)
+- [Architecture](docs/ARCHITECTURE.md)
+- [Migration guide](docs/MIGRATION.md)
+- [Security policy](SECURITY.md)
+- [Roadmap](ROADMAP.md)
+- [Changelog](CHANGELOG.md)
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+MIT, see [LICENSE](LICENSE).

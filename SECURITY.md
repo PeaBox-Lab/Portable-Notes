@@ -1,9 +1,10 @@
 # Security Policy
 
+## Supported version
+Version 2.1.x receives security fixes.
+
 ## Reporting
+Use GitHub private vulnerability reporting for https://github.com/iwebslogtech/Portable-Notes when enabled. Do not publish an unpatched vulnerability. Include the affected version and reproducible steps.
 
-Please do not disclose a vulnerability publicly before a fix is available. Report it through GitHub private vulnerability reporting, if enabled, or contact the repository owner privately. Include reproduction steps and affected versions.
-
-## Scope
-
-Portable Notes Web binds to `127.0.0.1` by default. Do not change it to `0.0.0.0` without adding authentication, CSRF controls, stricter validation, TLS through a trusted reverse proxy, and a deployment security review. Keep Python updated and back up `data/notes.db`.
+## Security model
+Portable Notes binds to `127.0.0.1`, performs no telemetry, and sends no note content externally. It rejects vault paths containing traversal segments. Do not change the bind address to `0.0.0.0` without authentication, CSRF protection, TLS, stricter origin controls, and a separate deployment review. Do not open untrusted HTML or executable attachments.

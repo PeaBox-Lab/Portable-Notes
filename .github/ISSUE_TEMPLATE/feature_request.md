@@ -9,6 +9,4 @@ labels: enhancement
 
 **Proposed solution**
 
-**Local-first and privacy impact**
-
-**Alternatives considered**
+**Markdown portability and privacy impact**

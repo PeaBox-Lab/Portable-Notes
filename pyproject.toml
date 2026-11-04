@@ -1,0 +1,13 @@
+[project]
+name = "portable-notes"
+version = "2.1.0"
+description = "Local-first Markdown notes and personal knowledge management"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "MIT"}
+authors = [{name = "Rajesh Kumar"}]
+keywords = ["notes", "markdown", "local-first", "pkm", "wiki-links"]
+[project.urls]
+Homepage = "https://github.com/iwebslogtech/Portable-Notes"
+Repository = "https://github.com/iwebslogtech/Portable-Notes"
+Issues = "https://github.com/iwebslogtech/Portable-Notes/issues"

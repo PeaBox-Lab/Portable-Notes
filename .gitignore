@@ -1,9 +1,13 @@
 __pycache__/
 *.py[cod]
 .venv/
-venv/
 data/*
 !data/.gitkeep
+vault/*
+!vault/Getting Started/
+!vault/Getting Started/Welcome.md
+!vault/Templates/
+!vault/Templates/Meeting.md
 .DS_Store
 Thumbs.db
 *.zip

@@ -5,16 +5,11 @@ title: "[Bug] "
 labels: bug
 ---
 
-**Environment**
-- OS:
-- Python version:
-- Browser:
+**Version, OS, Python, browser**
 
 **Steps to reproduce**
 1.
 
-**Expected behavior**
+**Expected and actual behavior**
 
-**Actual behavior**
-
-**Additional context**
+**Relevant logs, with private note content removed**

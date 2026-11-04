@@ -1,11 +1,9 @@
 # Contributing
 
-Thank you for improving Portable Notes Web.
+Repository: https://github.com/iwebslogtech/Portable-Notes
 
-1. Fork the repository and create a focused feature branch.
-2. Keep the app local-first and avoid unnecessary dependencies.
-3. Test note creation, editing, search, links, autosave, export, and trash.
-4. Run `python -m py_compile app.py` before opening a pull request.
-5. Describe what changed, why, and how it was tested.
-
-For significant changes, open an issue first. By contributing, you agree that your contribution is provided under the MIT License.
+1. Fork the repository and create a focused branch.
+2. Preserve Markdown portability and local-first privacy.
+3. Run `python -m unittest discover -s tests -v` and `python -m py_compile app.py`.
+4. Test create, rename, move, links, search, external edits, export, and recovery.
+5. Update README, changelog, user guide, and release notes for user-visible changes.

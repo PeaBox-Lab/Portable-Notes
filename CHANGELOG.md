@@ -1,14 +1,19 @@
 # Changelog
 
-## [2.0.0] - 2026-09-15
+## [2.1.0] - 2026-11-05
 
 ### Added
-- Browser-based localhost application with responsive three-panel interface
-- SQLite storage, autosave, folders, tags, favorites, pinning, and trash
-- Markdown reader, split view, wiki links, outgoing links, and backlinks
-- Full-text filtering and ZIP export to Markdown and JSON
-- Dark theme, keyboard shortcuts, GitHub community files, and startup scripts
+- Markdown vault as the authoritative data store
+- Nested file tree, custom vault paths, daily notes, templates, and command palette
+- YAML-compatible metadata, external-change detection, backlinks, and disposable SQLite index
+- Rename-safe wiki-link maintenance, recoverable trash, and complete vault ZIP export
+- Architecture, migration, user-guide, release, security, and GitHub community documentation
 
 ### Changed
-- Replaced the Tkinter-only interface with a local web interface
-- Consolidated app startup into a dependency-free Python server
+- Product branding and repository links now consistently target `iwebslogtech/Portable-Notes`
+- Search index can be rebuilt entirely from Markdown files
+- Browser interface refined for desktop and responsive use
+
+### Security
+- Server remains restricted to `127.0.0.1`
+- Path traversal is rejected for vault operations
