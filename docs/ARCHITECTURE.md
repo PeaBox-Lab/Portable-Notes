@@ -54,3 +54,6 @@ Board lanes and milestone progress are projections of Markdown task metadata and
 
 ## 2.18 task dependencies
 Dependency state is derived from Markdown task IDs, dependency references, and completion status. No separate workflow database is introduced.
+
+## 2.19 critical path
+Dependency depth is computed with memoized graph traversal over Markdown task IDs. Cycle detection prevents recursive dependency loops from hanging analysis.

@@ -1,6 +1,16 @@
 # Changelog
 
-## [2.18.0] - 2026-11-05
+## [2.19.0] - 2026-11-05
+### Added
+- Critical-path API and command
+- Dependency-depth analysis
+- Critical-chain candidate and cycle detection
+
+### Retained
+- All v2.18 and earlier functionality.
+
+
+## [2.19.0] - 2026-11-05
 ### Added
 - Markdown task IDs and dependencies
 - Dependency API and command
@@ -11,7 +21,7 @@
 - All v2.17 and earlier functionality.
 
 
-## [2.18.0] - 2026-11-05
+## [2.19.0] - 2026-11-05
 ### Added
 - Milestone Board API and command
 - Overdue, Active and Done milestone lanes
@@ -22,7 +32,7 @@
 - All v2.16 and earlier functionality.
 
 
-## [2.18.0] - 2026-11-05
+## [2.19.0] - 2026-11-05
 ### Added
 - Markdown milestone metadata
 - Milestone API and command
@@ -32,7 +42,7 @@
 - All v2.15 and earlier functionality.
 
 
-## [2.18.0] - 2026-11-05
+## [2.19.0] - 2026-11-05
 ### Added
 - Project Timeline API and command
 - Chronological dated-task views
@@ -42,7 +52,7 @@
 - All v2.14 and earlier functionality.
 
 
-## [2.18.0] - 2026-11-05
+## [2.19.0] - 2026-11-05
 ### Added
 - Project Workspace API and command
 - Focused project metrics and task list
@@ -53,7 +63,7 @@
 - All v2.13 and earlier functionality.
 
 
-## [2.18.0] - 2026-11-05
+## [2.19.0] - 2026-11-05
 ### Added
 - Project Health API and command
 - Per-project completion and workload metrics
@@ -64,7 +74,7 @@
 - All v2.12 and earlier functionality.
 
 
-## [2.18.0] - 2026-11-05
+## [2.19.0] - 2026-11-05
 ### Added
 - Productivity statistics API and command
 - Completion percentage
@@ -75,7 +85,7 @@
 - All v2.11 and earlier functionality.
 
 
-## [2.18.0] - 2026-11-05
+## [2.19.0] - 2026-11-05
 ### Added
 - Weekly review API and command
 - Review summary metrics
@@ -86,7 +96,7 @@
 - All v2.10 and earlier functionality.
 
 
-## [2.18.0] - 2026-11-05
+## [2.19.0] - 2026-11-05
 ### Added
 - Configurable task Focus API
 - Overdue/today/upcoming/priority focus buckets
@@ -97,7 +107,7 @@
 - All v2.9 and earlier functionality.
 
 
-## [2.18.0] - 2026-11-05
+## [2.19.0] - 2026-11-05
 ### Added
 - Kanban-style task board API
 - Overdue, Today, Upcoming, No Due Date, and Done lanes
@@ -109,7 +119,7 @@
 - All v2.8 and earlier functionality.
 
 
-## [2.18.0] - 2026-11-05
+## [2.19.0] - 2026-11-05
 ### Added
 - Dated task calendar API
 - Date-range agenda filtering
@@ -120,7 +130,7 @@
 - All v2.7 and earlier functionality.
 
 
-## [2.18.0] - 2026-11-05
+## [2.19.0] - 2026-11-05
 ### Added
 - Task and project dashboard API
 - Vault-wide completion and overdue statistics

@@ -1,5 +1,5 @@
 
-# Portable Notes 2.18 User Guide
+# Portable Notes 2.19 User Guide
 
 ## Start
 
@@ -69,3 +69,6 @@ Open **Milestone board**, optionally enter a project and milestone, and review m
 
 ## Task dependencies
 Give tasks IDs using `taskid: ID` or `#task/ID`. Add one or more `depends: ID` or `#depends/ID` references to dependent tasks. Open **Task dependencies** to inspect Ready, Blocked, and Unresolved work.
+
+## Critical path
+After assigning task IDs and dependencies, choose **Critical path**. Portable Notes calculates dependency depth, highlights the deepest chain candidates, and reports cycles.

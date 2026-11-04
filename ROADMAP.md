@@ -66,3 +66,6 @@
 
 ## 2.18 Task Dependencies ✅
 - Markdown task IDs, dependency references, blocking analysis, unresolved-reference diagnostics, and project filtering delivered.
+
+## 2.19 Critical Path ✅
+- Dependency-depth analysis, critical-chain candidates, project filtering, and cycle detection delivered.

@@ -10,7 +10,7 @@ A private, local-first Markdown notes and personal knowledge-management applicat
 
 **Repository:** https://github.com/iwebslogtech/Portable-Notes
 
-## What's new in 2.18.0
+## What's new in 2.19.0
 
 - Persistent multi-note tabs and a smoother writing workflow
 - Find and replace with `Ctrl+F`
@@ -116,3 +116,6 @@ Use **Milestone board** to operationalize milestone-tagged Markdown tasks in Ove
 
 ## 2.18 task dependencies
 Assign `taskid: Build` (or `#task/Build`) and link another task with `depends: Build` (or `#depends/Build`). **Task dependencies** identifies ready work, blocked tasks, and unresolved references.
+
+## 2.19 critical path
+Use **Critical path** to analyze task-ID dependency chains, identify the deepest chain candidates, and surface dependency cycles.
