@@ -1,6 +1,6 @@
 
 #!/usr/bin/env python3
-# Portable Notes 2.15.0: local-first Markdown vault with task intelligence.
+# Portable Notes 2.16.0: local-first Markdown vault with task intelligence.
 from __future__ import annotations
 import argparse, hashlib, html, io, json, mimetypes, os, re, shutil, sqlite3, threading, time, webbrowser, zipfile
 from datetime import datetime, timedelta, timezone
@@ -25,7 +25,7 @@ def norm_rel(value):
     return value
 
 def load_cfg():
-    default={'vault':str(DEFAULT_VAULT),'theme':'system','version':'2.15.0'}
+    default={'vault':str(DEFAULT_VAULT),'theme':'system','version':'2.16.0'}
     if CONFIG.exists():
         try: default.update(json.loads(CONFIG.read_text(encoding='utf-8')))
         except Exception: pass
@@ -355,6 +355,30 @@ class Handler(SimpleHTTPRequestHandler):
                 months={}
                 for x in items: months.setdefault(x['date'][:7],[]).append(x)
                 return self.send_json({'project':project or None,'items':items,'months':[{'month':k,'count':len(v),'open':sum(not x['done'] for x in v),'done':sum(x['done'] for x in v)} for k,v in sorted(months.items())]})
+            if u.path=='/api/task-milestones':
+                refresh(); project=q.get('project',[''])[0].strip(); items=[]; today=datetime.now().date().isoformat()
+                with sqlite3.connect(DB) as db: db.row_factory=sqlite3.Row; rows=db.execute('SELECT * FROM notes').fetchall()
+                for r in rows:
+                    d=serialize(r)
+                    for line_no,line in enumerate(d['content'].splitlines(),1):
+                        m=re.match(r'^\s*- \[( |x|X)\]\s+(.+)$',line)
+                        if not m: continue
+                        text=m.group(2).strip(); mm=re.search(r'(?:milestone:\s*|#milestone/)([A-Za-z0-9._-]+)',text,re.I)
+                        if not mm: continue
+                        jm=re.search(r'(?:project:\s*|#project/)([A-Za-z0-9._-]+)',text,re.I); proj=jm.group(1) if jm else 'Unassigned'
+                        if project and proj.lower()!=project.lower(): continue
+                        dm=re.search(r'(?:📅|due:)\s*(\d{4}-\d{2}-\d{2})',text,re.I); due=dm.group(1) if dm else None
+                        pm=re.search(r'(?:priority:\s*|!)(high|medium|low)\b',text,re.I); priority=pm.group(1).lower() if pm else 'normal'; done=m.group(1).lower()=='x'
+                        items.append({'milestone':mm.group(1),'project':proj,'due':due,'done':done,'priority':priority,'overdue':bool(not done and due and due<today),'text':text,'note':d['title'],'path':d['path'],'line':line_no})
+                groups={}
+                for x in items:
+                    key=(x['project'],x['milestone']); z=groups.setdefault(key,{'project':x['project'],'milestone':x['milestone'],'total':0,'open':0,'done':0,'overdue':0,'next_due':None})
+                    z['total']+=1; z['done' if x['done'] else 'open']+=1; z['overdue']+=int(x['overdue'])
+                    if not x['done'] and x['due'] and (z['next_due'] is None or x['due']<z['next_due']): z['next_due']=x['due']
+                data=[]
+                for z in groups.values(): z['completion_percent']=round(z['done']/z['total']*100,1) if z['total'] else 0.0; data.append(z)
+                data.sort(key=lambda z:(-z['overdue'],z['next_due'] or '9999-12-31',z['project'].lower(),z['milestone'].lower()))
+                return self.send_json({'project':project or None,'milestones':data,'tasks':items})
             if u.path=='/api/task-projects':
                 refresh(); items=[]; today=datetime.now().date().isoformat()
                 with sqlite3.connect(DB) as db: db.row_factory=sqlite3.Row; rows=db.execute('SELECT * FROM notes').fetchall()
@@ -403,13 +427,13 @@ class Handler(SimpleHTTPRequestHandler):
                 with zipfile.ZipFile(mem,'w',zipfile.ZIP_DEFLATED) as z:
                     for p in vault().rglob('*'):
                         if p.is_file() and '.portable-notes' not in p.parts: z.write(p,p.relative_to(vault()))
-                    z.writestr('portable-notes-backup.json',json.dumps({'version':'2.15.0','created':iso(),'vault':str(vault())},indent=2))
+                    z.writestr('portable-notes-backup.json',json.dumps({'version':'2.16.0','created':iso(),'vault':str(vault())},indent=2))
                 raw=mem.getvalue(); self.send_response(200); self.send_header('Content-Type','application/zip'); self.send_header('Content-Disposition','attachment; filename="portable-notes-vault-backup.zip"'); self.send_header('Content-Length',str(len(raw))); self.end_headers(); return self.wfile.write(raw)
             if u.path=='/api/attachment':
                 rel=norm_rel(q.get('path',[''])[0]); p=md_path(rel)
                 if not p.exists() or p.is_dir(): return self.fail('Attachment not found',404)
                 raw=p.read_bytes(); self.send_response(200); self.send_header('Content-Type',mimetypes.guess_type(p.name)[0] or 'application/octet-stream'); self.send_header('Content-Length',str(len(raw))); self.end_headers(); return self.wfile.write(raw)
-            if u.path=='/api/health': return self.send_json({'ok':True,'version':'2.15.0','vault':str(vault()),'notes':rebuild()})
+            if u.path=='/api/health': return self.send_json({'ok':True,'version':'2.16.0','vault':str(vault()),'notes':rebuild()})
             if u.path=='/': self.path='/static/index.html'
             return super().do_GET()
         except Exception as e: return self.fail(e)
@@ -466,7 +490,7 @@ def main():
     global CFG
     if args.vault: CFG['vault']=str(Path(args.vault).expanduser().resolve()); save_cfg()
     seed(); rebuild(); os.chdir(ROOT); server=ThreadingHTTPServer((HOST,args.port),Handler); url=f'http://{HOST}:{args.port}'
-    print(f'Portable Notes 2.15.0 running at {url}\nVault: {vault()}\nPress Ctrl+C to stop.')
+    print(f'Portable Notes 2.16.0 running at {url}\nVault: {vault()}\nPress Ctrl+C to stop.')
     if not args.no_browser: threading.Timer(.5,lambda:webbrowser.open(url)).start()
     try:server.serve_forever()
     except KeyboardInterrupt:print('\nStopped.')

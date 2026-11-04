@@ -10,7 +10,7 @@ A private, local-first Markdown notes and personal knowledge-management applicat
 
 **Repository:** https://github.com/iwebslogtech/Portable-Notes
 
-## What's new in 2.15.0
+## What's new in 2.16.0
 
 - Persistent multi-note tabs and a smoother writing workflow
 - Find and replace with `Ctrl+F`
@@ -107,3 +107,6 @@ Use **Project workspace** from the command palette, enter a project name, and ge
 
 ## 2.15 project timeline
 Use **Project timeline** to see dated work chronologically across the vault or for one project, plus monthly open/completed rollups.
+
+## 2.16 milestones
+Add `milestone: Release1` or `#milestone/Release1` to Markdown tasks. Use **Milestones** to review progress, overdue work, completion percentage, and next due date across milestones or within one project.

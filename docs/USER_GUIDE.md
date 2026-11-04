@@ -1,5 +1,5 @@
 
-# Portable Notes 2.15 User Guide
+# Portable Notes 2.16 User Guide
 
 ## Start
 
@@ -60,3 +60,6 @@ Choose **Project workspace**, enter the project identifier used in `project: Nam
 
 ## Project timeline
 Choose **Project timeline**, optionally enter a project, and review dated tasks chronologically with monthly progress rollups.
+
+## Milestones
+Add milestone metadata to a task with `milestone: Name` or `#milestone/Name`. Open **Milestones** from the command palette to review grouped progress.

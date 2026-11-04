@@ -45,3 +45,6 @@ A project workspace is a request-time projection of Markdown task metadata. It i
 
 ## 2.15 project timeline
 Timeline data is derived from Markdown task due-date and project metadata at request time; no parallel planning store is introduced.
+
+## 2.16 milestones
+Milestone state is derived from Markdown task metadata at request time, so the vault remains canonical and analytics remain reconstructable.

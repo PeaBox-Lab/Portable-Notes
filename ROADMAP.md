@@ -57,3 +57,6 @@
 
 ## 2.15 Project Timeline ✅
 - Chronological project timeline, filtering, and monthly progress rollups delivered.
+
+## 2.16 Milestones ✅
+- Markdown milestone metadata, grouped progress metrics, project filtering, and milestone command delivered.
