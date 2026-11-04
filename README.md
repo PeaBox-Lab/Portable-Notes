@@ -1,3 +1,4 @@
+
 # Portable Notes
 
 [![Release](https://img.shields.io/github/v/release/iwebslogtech/Portable-Notes)](https://github.com/iwebslogtech/Portable-Notes/releases)
@@ -9,7 +10,7 @@ A private, local-first Markdown notes and personal knowledge-management applicat
 
 **Repository:** https://github.com/iwebslogtech/Portable-Notes
 
-## What's new in 2.2.0
+## What's new in 2.4.0
 
 - Persistent multi-note tabs and a smoother writing workflow
 - Find and replace with `Ctrl+F`
@@ -70,6 +71,6 @@ Back up the `vault/` directory or use the Export button. You can open the same n
 
 MIT, see [LICENSE](LICENSE).
 
-## 2.2 writing workflow
+## 2.4 search and knowledge
 
-Portable Notes now keeps recently opened notes as tabs, snapshots prior note content before saves, and exposes Find/Replace and History through the command palette. All 2.1 features remain available.
+Portable Notes 2.4 adds FTS5-backed search, saved searches, unlinked mentions, and duplicate detection while retaining the existing Markdown-first writing, history, attachment, export, and recovery workflow.

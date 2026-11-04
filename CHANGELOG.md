@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.4.0] - 2026-11-05
+### Added
+- FTS5 search endpoint with fallback search
+- Saved searches
+- Unlinked mention discovery
+- Duplicate-note detection
+- Folder/tag search filters at the API layer
+
+### Retained
+- Existing local-first Markdown notes, attachments, tabs, note history, wiki links/backlinks, export, trash, daily notes, templates, and privacy model.
+
+
+
 ## [2.2.0] - 2026-11-05
 
 ### Added

@@ -1,3 +1,4 @@
+
 # Portable Notes 2.2.0: Writing Experience
 
 This release builds directly on 2.1.0 without removing features.

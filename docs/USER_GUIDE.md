@@ -1,4 +1,5 @@
-# Portable Notes 2.1 User Guide
+
+# Portable Notes 2.4 User Guide
 
 ## Start
 
@@ -23,3 +24,6 @@ Use Export to download the complete vault as a ZIP. Deleted notes are moved to `
 ## Custom vault
 
 Run `python app.py --vault "PATH"`. The selected absolute path is saved locally in `data/config.json`.
+
+## Search and knowledge
+Use the search box for full-text queries. Use the command palette to save the current search, inspect unlinked mentions of the current note title, or detect notes with duplicate normalized content.

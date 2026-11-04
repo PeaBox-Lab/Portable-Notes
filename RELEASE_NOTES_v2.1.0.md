@@ -1,3 +1,4 @@
+
 # Portable Notes 2.1.0: Markdown Vault Foundation
 
 Portable Notes 2.1.0 makes Markdown files the source of truth while retaining a fast, replaceable SQLite index. Notes remain readable in Obsidian, Notepad++, VS Code, and any standard text editor.

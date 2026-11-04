@@ -1,5 +1,6 @@
+
 #!/usr/bin/env python3
-# Portable Notes 2.1.0: local-first Markdown vault with disposable SQLite index.
+# Portable Notes 2.4.0: local-first Markdown vault with search and knowledge tools.
 from __future__ import annotations
 import argparse, hashlib, html, io, json, mimetypes, os, re, shutil, sqlite3, threading, time, webbrowser, zipfile
 from datetime import datetime, timezone
@@ -15,7 +16,7 @@ DATA.mkdir(exist_ok=True)
 
 def iso(): return datetime.now(timezone.utc).isoformat()
 def safe_name(value, fallback='Untitled'):
-    value=re.sub(r'[<>:"/\\|?*\x00-\x1f]','',str(value)).strip().rstrip('.')
+    value=re.sub(r'[<>:"/\|?*\x00-\x1f]','',str(value)).strip().rstrip('.')
     return (value[:120] or fallback)
 def norm_rel(value):
     value=unquote(str(value or '')).replace('\\','/').strip('/')
@@ -24,7 +25,7 @@ def norm_rel(value):
     return value
 
 def load_cfg():
-    default={'vault':str(DEFAULT_VAULT),'theme':'system','version':'2.3.0'}
+    default={'vault':str(DEFAULT_VAULT),'theme':'system','version':'2.4.0'}
     if CONFIG.exists():
         try: default.update(json.loads(CONFIG.read_text(encoding='utf-8')))
         except Exception: pass
@@ -147,6 +148,33 @@ class Handler(SimpleHTTPRequestHandler):
                         pat='%'+query.lower()+'%'; rows=db.execute('SELECT * FROM notes WHERE lower(title) LIKE ? OR lower(content) LIKE ? OR lower(tags) LIKE ? OR lower(folder) LIKE ? ORDER BY pinned DESC,updated DESC',(pat,pat,pat,pat)).fetchall()
                     else: rows=db.execute('SELECT * FROM notes ORDER BY pinned DESC,updated DESC').fetchall()
                 data=[serialize(r) for r in rows]; data=[x for x in data if not favorite or x['favorite']]; return self.send_json(data)
+            if u.path=='/api/search':
+                refresh(); query=q.get('q',[''])[0].strip(); folder=q.get('folder',[''])[0]; tag=q.get('tag',[''])[0]
+                with sqlite3.connect(DB) as db:
+                    db.row_factory=sqlite3.Row
+                    if query:
+                        try:
+                            paths=[r[0] for r in db.execute('SELECT path FROM notes_fts WHERE notes_fts MATCH ? ORDER BY rank LIMIT 200',(query,))]
+                            rows=db.execute('SELECT * FROM notes WHERE path IN (%s)'%','.join('?'*len(paths)),paths).fetchall() if paths else []
+                        except sqlite3.OperationalError:
+                            pat='%'+query.lower()+'%'; rows=db.execute('SELECT * FROM notes WHERE lower(title) LIKE ? OR lower(content) LIKE ?',(pat,pat)).fetchall()
+                    else: rows=db.execute('SELECT * FROM notes ORDER BY pinned DESC,updated DESC').fetchall()
+                data=[serialize(r) for r in rows]
+                if folder: data=[x for x in data if x['folder']==folder]
+                if tag: data=[x for x in data if tag in x['tags']]
+                return self.send_json(data)
+            if u.path=='/api/mentions':
+                title=q.get('title',[''])[0].strip()
+                if not title:return self.send_json([])
+                with sqlite3.connect(DB) as db: db.row_factory=sqlite3.Row; rows=db.execute('SELECT * FROM notes').fetchall()
+                return self.send_json([serialize(r) for r in rows if title.lower() in serialize(r)['content'].lower() and title not in serialize(r)['links'] and serialize(r)['title']!=title])
+            if u.path=='/api/duplicates':
+                refresh(); groups={}
+                with sqlite3.connect(DB) as db: db.row_factory=sqlite3.Row; rows=db.execute('SELECT * FROM notes').fetchall()
+                for r in rows:
+                    d=serialize(r); key=re.sub(r'\s+',' ',re.sub(r'[^a-z0-9 ]','',d['content'].lower())).strip()
+                    if len(key)>=40: groups.setdefault(hashlib.sha1(key.encode()).hexdigest(),[]).append({'path':d['path'],'title':d['title']})
+                return self.send_json([v for v in groups.values() if len(v)>1])
             if u.path=='/api/note':
                 rel=norm_rel(q.get('path',[''])[0]); p=md_path(rel)
                 if not p.exists(): return self.fail('Note not found',404)
@@ -172,13 +200,13 @@ class Handler(SimpleHTTPRequestHandler):
                 with zipfile.ZipFile(mem,'w',zipfile.ZIP_DEFLATED) as z:
                     for p in vault().rglob('*'):
                         if p.is_file() and '.portable-notes' not in p.parts: z.write(p,p.relative_to(vault()))
-                    z.writestr('portable-notes-backup.json',json.dumps({'version':'2.3.0','created':iso(),'vault':str(vault())},indent=2))
+                    z.writestr('portable-notes-backup.json',json.dumps({'version':'2.4.0','created':iso(),'vault':str(vault())},indent=2))
                 raw=mem.getvalue(); self.send_response(200); self.send_header('Content-Type','application/zip'); self.send_header('Content-Disposition','attachment; filename="portable-notes-vault-backup.zip"'); self.send_header('Content-Length',str(len(raw))); self.end_headers(); return self.wfile.write(raw)
             if u.path=='/api/attachment':
                 rel=norm_rel(q.get('path',[''])[0]); p=md_path(rel)
                 if not p.exists() or p.is_dir(): return self.fail('Attachment not found',404)
                 raw=p.read_bytes(); self.send_response(200); self.send_header('Content-Type',mimetypes.guess_type(p.name)[0] or 'application/octet-stream'); self.send_header('Content-Length',str(len(raw))); self.end_headers(); return self.wfile.write(raw)
-            if u.path=='/api/health': return self.send_json({'ok':True,'version':'2.3.0','vault':str(vault()),'notes':rebuild()})
+            if u.path=='/api/health': return self.send_json({'ok':True,'version':'2.4.0','vault':str(vault()),'notes':rebuild()})
             if u.path=='/': self.path='/static/index.html'
             return super().do_GET()
         except Exception as e: return self.fail(e)
@@ -235,7 +263,7 @@ def main():
     global CFG
     if args.vault: CFG['vault']=str(Path(args.vault).expanduser().resolve()); save_cfg()
     seed(); rebuild(); os.chdir(ROOT); server=ThreadingHTTPServer((HOST,args.port),Handler); url=f'http://{HOST}:{args.port}'
-    print(f'Portable Notes 2.3.0 running at {url}\nVault: {vault()}\nPress Ctrl+C to stop.')
+    print(f'Portable Notes 2.4.0 running at {url}\nVault: {vault()}\nPress Ctrl+C to stop.')
     if not args.no_browser: threading.Timer(.5,lambda:webbrowser.open(url)).start()
     try:server.serve_forever()
     except KeyboardInterrupt:print('\nStopped.')

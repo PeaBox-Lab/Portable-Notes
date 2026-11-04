@@ -1,3 +1,4 @@
+
 # Roadmap
 
 ## 2.2 Writing Experience ✅
@@ -6,8 +7,8 @@
 ## 2.3 Attachments
 - Drag-and-drop files, pasted images, previews, safe attachment handling, and orphan detection
 
-## 2.4 Search and Knowledge
-- SQLite FTS5 query syntax, saved searches, contextual backlinks, unlinked mentions, and duplicate detection
+## 2.4 Search and Knowledge ✅
+- FTS5 search foundation, saved searches, unlinked mentions, and duplicate detection delivered; contextual backlink refinements continue incrementally
 
 ## 2.5 Tasks and Projects
 - Global tasks, due dates, recurring tasks, Kanban, calendar, and Markdown-backed project dashboards

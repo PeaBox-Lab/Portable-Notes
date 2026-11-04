@@ -1,6 +1,7 @@
+
 # Architecture
 
-Portable Notes 2.1 uses a local Python HTTP server and a dependency-free HTML/CSS/JavaScript client. Markdown in the configured vault is authoritative. `data/index.db` caches searchable note content, metadata, wiki links, and file modification times. The index can be deleted and rebuilt without information loss.
+Portable Notes 2.4 uses a local Python HTTP server and a dependency-free HTML/CSS/JavaScript client. Markdown in the configured vault is authoritative. `data/index.db` caches searchable note content, metadata, wiki links, and file modification times. The index can be deleted and rebuilt without information loss.
 
 ## Components
 
@@ -11,3 +12,6 @@ Portable Notes 2.1 uses a local Python HTTP server and a dependency-free HTML/CS
 - `data/index.db`: disposable SQLite index
 
 The server binds only to `127.0.0.1`. It is not designed for deployment on a public network.
+
+## 2.4 knowledge services
+The disposable SQLite index exposes FTS5-backed search when available. Mention and duplicate analysis operate entirely on local indexed Markdown content. Saved-search definitions remain browser-local.
