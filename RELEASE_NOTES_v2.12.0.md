@@ -1,4 +1,4 @@
-# Portable Notes 2.16.0: Productivity Stats
+# Portable Notes 2.17.0: Productivity Stats
 
 A cumulative release adding lightweight productivity analytics derived from Markdown tasks.
 

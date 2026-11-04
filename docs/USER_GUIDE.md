@@ -1,5 +1,5 @@
 
-# Portable Notes 2.16 User Guide
+# Portable Notes 2.17 User Guide
 
 ## Start
 
@@ -63,3 +63,6 @@ Choose **Project timeline**, optionally enter a project, and review dated tasks 
 
 ## Milestones
 Add milestone metadata to a task with `milestone: Name` or `#milestone/Name`. Open **Milestones** from the command palette to review grouped progress.
+
+## Milestone board
+Open **Milestone board**, optionally enter a project and milestone, and review milestone tasks in Overdue, Active, and Done lanes with progress summaries.

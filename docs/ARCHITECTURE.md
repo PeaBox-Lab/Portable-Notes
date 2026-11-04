@@ -48,3 +48,6 @@ Timeline data is derived from Markdown task due-date and project metadata at req
 
 ## 2.16 milestones
 Milestone state is derived from Markdown task metadata at request time, so the vault remains canonical and analytics remain reconstructable.
+
+## 2.17 milestone board
+Board lanes and milestone progress are projections of Markdown task metadata and are reconstructed per request.

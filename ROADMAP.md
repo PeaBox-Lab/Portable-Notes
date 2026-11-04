@@ -60,3 +60,6 @@
 
 ## 2.16 Milestones ✅
 - Markdown milestone metadata, grouped progress metrics, project filtering, and milestone command delivered.
+
+## 2.17 Milestone Board ✅
+- Milestone execution lanes, filters, progress summaries, and priority-aware ordering delivered.
