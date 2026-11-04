@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.6.0] - 2026-11-05
+### Added
+- Task priority and project metadata
+- Overdue detection
+- Priority/project task filtering
+- Overdue and high-priority command views
+- Deterministic task ordering
+
+### Retained
+- All v2.5 and earlier functionality.
+
+
 ## [2.5.0] - 2026-11-05
 ### Added
 - Global Markdown task aggregation

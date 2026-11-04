@@ -1,5 +1,5 @@
 
-# Portable Notes 2.5 User Guide
+# Portable Notes 2.6 User Guide
 
 ## Start
 
@@ -30,3 +30,6 @@ Use the search box for full-text queries. Use the command palette to save the cu
 
 ## Tasks
 Write tasks as `- [ ] Task`. Optional due dates use `due: YYYY-MM-DD` or `📅 YYYY-MM-DD`. Open Global open tasks from the command palette to aggregate incomplete tasks across notes.
+
+## Task intelligence
+Examples: `- [ ] Ship release due: 2026-11-10 priority: high project: PortableNotes` and `- [ ] Review docs 📅 2026-11-08 !medium #project/Docs`. Past due incomplete tasks are flagged as overdue in the task API and dedicated command-palette view.

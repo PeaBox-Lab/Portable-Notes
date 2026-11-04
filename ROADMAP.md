@@ -27,3 +27,6 @@
 
 ## 3.0 Optional AI
 - Local Ollama integration, semantic search, summaries, action extraction, and explicit privacy controls
+
+## 2.6 Task Intelligence ✅
+- Priority metadata, project metadata, overdue detection, filtering, sorting, and focused task commands delivered.
