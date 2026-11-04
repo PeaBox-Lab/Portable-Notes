@@ -78,3 +78,6 @@ Scheduling is deterministic and transient. Open Markdown tasks are ordered by du
 
 ## 2.26 schedule slippage
 Schedule variance is computed from baseline and current due-date metadata in Markdown. Positive days mean slippage, negative days mean ahead of baseline, and zero means unchanged.
+
+## 2.27 baseline health
+Health is derived from Markdown baseline/due dates and task status. Red means any overdue work or average slip above 3 days; Amber means untracked work or positive average slip; otherwise Green.

@@ -1,5 +1,5 @@
 
-# Portable Notes 2.26 User Guide
+# Portable Notes 2.27 User Guide
 
 ## Start
 
@@ -93,3 +93,6 @@ Choose **Schedule plan**, enter daily hours, and optionally a project. Portable 
 
 ## Schedule slippage
 Add a baseline date such as `baseline: 2026-11-10` to a dated task. When the current `due:` date changes, **Schedule slippage** shows the variance in days and aggregates schedule movement by project.
+
+## Baseline health
+Choose **Baseline health** to see baseline coverage, slipped/ahead/on-baseline counts, average slippage and a deterministic Green/Amber/Red status for each project.

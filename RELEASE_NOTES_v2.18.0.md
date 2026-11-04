@@ -1,4 +1,4 @@
-# Portable Notes 2.26.0: Task Dependencies
+# Portable Notes 2.27.0: Task Dependencies
 
 This cumulative release adds lightweight task dependency tracking while preserving all earlier functionality.
 

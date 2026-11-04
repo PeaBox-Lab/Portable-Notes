@@ -10,7 +10,7 @@ A private, local-first Markdown notes and personal knowledge-management applicat
 
 **Repository:** https://github.com/iwebslogtech/Portable-Notes
 
-## What's new in 2.26.0
+## What's new in 2.27.0
 
 - Persistent multi-note tabs and a smoother writing workflow
 - Find and replace with `Ctrl+F`
@@ -140,3 +140,6 @@ Use **Schedule plan** to turn open tasks into a daily execution sequence using c
 
 ## 2.26 schedule slippage
 Add `baseline: YYYY-MM-DD` (or `base:`) alongside a task due date. **Schedule slippage** compares baseline versus current due date and reports slipped, ahead, or on-baseline work with project-level averages and maximum slip.
+
+## 2.27 baseline health
+Use **Baseline health** to measure how completely project tasks are baselined and whether the schedule is moving. Green means no overdue work and no positive average slip; Amber indicates untracked tasks or positive average slip up to three days; Red indicates overdue work or average slip above three days.

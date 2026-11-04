@@ -90,3 +90,6 @@
 
 ## 2.26 Schedule Slippage ✅
 - Baseline dates, due-date variance, slipped/ahead/on-baseline classification, project rollups, and filtering delivered.
+
+## 2.27 Baseline Health ✅
+- Baseline coverage, tracked/untracked metrics, average slippage, and deterministic project health classification delivered.

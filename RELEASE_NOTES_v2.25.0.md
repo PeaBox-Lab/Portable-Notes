@@ -1,4 +1,4 @@
-# Portable Notes 2.26.0: Schedule Plan
+# Portable Notes 2.27.0: Schedule Plan
 
 This cumulative release converts open Markdown work into a deterministic daily execution plan.
 

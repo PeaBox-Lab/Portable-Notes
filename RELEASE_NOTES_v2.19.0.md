@@ -1,4 +1,4 @@
-# Portable Notes 2.26.0: Critical Path
+# Portable Notes 2.27.0: Critical Path
 
 This cumulative release builds on task dependencies with dependency-depth and critical-chain analysis.
 

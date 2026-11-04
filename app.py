@@ -1,6 +1,6 @@
 
 #!/usr/bin/env python3
-# Portable Notes 2.26.0: local-first Markdown vault with task intelligence.
+# Portable Notes 2.27.0: local-first Markdown vault with task intelligence.
 from __future__ import annotations
 import argparse, hashlib, html, io, json, mimetypes, os, re, shutil, sqlite3, threading, time, webbrowser, zipfile
 from datetime import datetime, timedelta, timezone
@@ -25,7 +25,7 @@ def norm_rel(value):
     return value
 
 def load_cfg():
-    default={'vault':str(DEFAULT_VAULT),'theme':'system','version':'2.26.0'}
+    default={'vault':str(DEFAULT_VAULT),'theme':'system','version':'2.27.0'}
     if CONFIG.exists():
         try: default.update(json.loads(CONFIG.read_text(encoding='utf-8')))
         except Exception: pass
@@ -637,6 +637,32 @@ class Handler(SimpleHTTPRequestHandler):
                 for z in projects.values(): z['average_slip_days']=round(z['net_slip_days']/z['tracked'],1) if z['tracked'] else 0.0; data.append(z)
                 data.sort(key=lambda z:(-z['max_slip_days'],-z['slipped'],z['project'].lower())); items.sort(key=lambda x:(-x['slip_days'],x['due'],x['note'].lower()))
                 return self.send_json({'project':project or None,'projects':data,'tasks':items})
+            if u.path=='/api/task-baseline-health':
+                refresh(); project=q.get('project',[''])[0].strip(); today=datetime.now().date().isoformat(); items=[]
+                with sqlite3.connect(DB) as db: db.row_factory=sqlite3.Row; rows=db.execute('SELECT * FROM notes').fetchall()
+                for r in rows:
+                    d=serialize(r)
+                    for line_no,line in enumerate(d['content'].splitlines(),1):
+                        m=re.match(r'^\s*- \[( |x|X)\]\s+(.+)$',line)
+                        if not m: continue
+                        text=m.group(2).strip(); jm=re.search(r'(?:project:\s*|#project/)([A-Za-z0-9._-]+)',text,re.I); proj=jm.group(1) if jm else 'Unassigned'
+                        if project and proj.lower()!=project.lower(): continue
+                        dm=re.search(r'(?:📅|due:)\s*(\d{4}-\d{2}-\d{2})',text,re.I); due=dm.group(1) if dm else None
+                        bm=re.search(r'(?:baseline:|base:)\s*(\d{4}-\d{2}-\d{2})',text,re.I); baseline=bm.group(1) if bm else None
+                        done=m.group(1).lower()=='x'; delta=(datetime.fromisoformat(due).date()-datetime.fromisoformat(baseline).date()).days if due and baseline else None
+                        covered=bool(due and baseline); status='untracked' if not covered else ('slipped' if delta>0 else ('ahead' if delta<0 else 'on_baseline'))
+                        items.append({'project':proj,'done':done,'due':due,'baseline':baseline,'slip_days':delta,'status':status,'overdue':bool(not done and due and due<today),'text':text,'note':d['title'],'path':d['path'],'line':line_no})
+                projects={}
+                for x in items:
+                    z=projects.setdefault(x['project'],{'project':x['project'],'tasks':0,'tracked':0,'untracked':0,'slipped':0,'ahead':0,'on_baseline':0,'overdue':0,'net_slip_days':0})
+                    z['tasks']+=1; z['overdue']+=int(x['overdue'])
+                    if x['status']=='untracked': z['untracked']+=1
+                    else: z['tracked']+=1; z[x['status']]+=1; z['net_slip_days']+=x['slip_days']
+                data=[]
+                for z in projects.values():
+                    z['coverage_percent']=round(z['tracked']/z['tasks']*100,1) if z['tasks'] else 0.0; z['average_slip_days']=round(z['net_slip_days']/z['tracked'],1) if z['tracked'] else 0.0; z['health']='red' if z['overdue'] or z['average_slip_days']>3 else ('amber' if z['untracked'] or z['average_slip_days']>0 else 'green'); data.append(z)
+                data.sort(key=lambda z:({'red':0,'amber':1,'green':2}[z['health']],z['project'].lower()))
+                return self.send_json({'project':project or None,'projects':data,'tasks':items})
             if u.path=='/api/task-projects':
                 refresh(); items=[]; today=datetime.now().date().isoformat()
                 with sqlite3.connect(DB) as db: db.row_factory=sqlite3.Row; rows=db.execute('SELECT * FROM notes').fetchall()
@@ -685,13 +711,13 @@ class Handler(SimpleHTTPRequestHandler):
                 with zipfile.ZipFile(mem,'w',zipfile.ZIP_DEFLATED) as z:
                     for p in vault().rglob('*'):
                         if p.is_file() and '.portable-notes' not in p.parts: z.write(p,p.relative_to(vault()))
-                    z.writestr('portable-notes-backup.json',json.dumps({'version':'2.26.0','created':iso(),'vault':str(vault())},indent=2))
+                    z.writestr('portable-notes-backup.json',json.dumps({'version':'2.27.0','created':iso(),'vault':str(vault())},indent=2))
                 raw=mem.getvalue(); self.send_response(200); self.send_header('Content-Type','application/zip'); self.send_header('Content-Disposition','attachment; filename="portable-notes-vault-backup.zip"'); self.send_header('Content-Length',str(len(raw))); self.end_headers(); return self.wfile.write(raw)
             if u.path=='/api/attachment':
                 rel=norm_rel(q.get('path',[''])[0]); p=md_path(rel)
                 if not p.exists() or p.is_dir(): return self.fail('Attachment not found',404)
                 raw=p.read_bytes(); self.send_response(200); self.send_header('Content-Type',mimetypes.guess_type(p.name)[0] or 'application/octet-stream'); self.send_header('Content-Length',str(len(raw))); self.end_headers(); return self.wfile.write(raw)
-            if u.path=='/api/health': return self.send_json({'ok':True,'version':'2.26.0','vault':str(vault()),'notes':rebuild()})
+            if u.path=='/api/health': return self.send_json({'ok':True,'version':'2.27.0','vault':str(vault()),'notes':rebuild()})
             if u.path=='/': self.path='/static/index.html'
             return super().do_GET()
         except Exception as e: return self.fail(e)
@@ -748,7 +774,7 @@ def main():
     global CFG
     if args.vault: CFG['vault']=str(Path(args.vault).expanduser().resolve()); save_cfg()
     seed(); rebuild(); os.chdir(ROOT); server=ThreadingHTTPServer((HOST,args.port),Handler); url=f'http://{HOST}:{args.port}'
-    print(f'Portable Notes 2.26.0 running at {url}\nVault: {vault()}\nPress Ctrl+C to stop.')
+    print(f'Portable Notes 2.27.0 running at {url}\nVault: {vault()}\nPress Ctrl+C to stop.')
     if not args.no_browser: threading.Timer(.5,lambda:webbrowser.open(url)).start()
     try:server.serve_forever()
     except KeyboardInterrupt:print('\nStopped.')
