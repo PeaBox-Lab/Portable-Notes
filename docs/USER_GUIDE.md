@@ -1,5 +1,5 @@
 
-# Portable Notes 2.11 User Guide
+# Portable Notes 2.12 User Guide
 
 ## Start
 
@@ -48,3 +48,6 @@ Choose **7-day focus** in the command palette to surface actionable open tasks. 
 
 ## Weekly review
 Choose **Weekly review** from the command palette. The review summarizes open and completed tasks, overdue work, tasks due in the next seven days, undated work, and workload grouped by project.
+
+## Productivity stats
+Choose **Productivity stats** from the command palette. It reports completion percentage, overdue and due-today counts, priority distribution, and project-level progress without changing your Markdown files.

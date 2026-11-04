@@ -33,3 +33,6 @@ Focus data is calculated at request time from Markdown tasks. It does not persis
 
 ## 2.11 weekly review
 Review metrics are derived on demand from Markdown tasks and existing metadata. No separate planning database is introduced.
+
+## 2.12 productivity statistics
+Metrics are calculated on demand from Markdown task state and metadata. Analytics remain disposable and reconstructable from the vault.

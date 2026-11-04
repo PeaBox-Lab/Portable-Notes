@@ -45,3 +45,6 @@
 
 ## 2.11 Weekly Review ✅
 - Weekly planning summary, project rollup, overdue, upcoming, and undated review groups delivered.
+
+## 2.12 Productivity Stats ✅
+- Completion, urgency, priority, and project-level task analytics delivered.
