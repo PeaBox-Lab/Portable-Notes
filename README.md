@@ -10,7 +10,7 @@ A private, local-first Markdown notes and personal knowledge-management applicat
 
 **Repository:** https://github.com/iwebslogtech/Portable-Notes
 
-## What's new in 2.10.0
+## What's new in 2.11.0
 
 - Persistent multi-note tabs and a smoother writing workflow
 - Find and replace with `Ctrl+F`
@@ -92,3 +92,6 @@ Use **Task board** from the command palette to group Markdown tasks into Overdue
 
 ## 2.10 focus view
 Use **7-day focus** from the command palette for overdue, today, near-term, and important undated work. The API accepts `/api/task-focus?days=N` with a bounded horizon up to 365 days.
+
+## 2.11 weekly review
+Run **Weekly review** from the command palette for a planning snapshot covering open/completed work, overdue tasks, the next seven days, undated work, and open-task counts by project.

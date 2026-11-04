@@ -1,4 +1,4 @@
-# Portable Notes 2.10.0: Task Board
+# Portable Notes 2.11.0: Task Board
 
 This cumulative release turns Markdown tasks into a lightweight Kanban-style workflow without introducing a second source of truth.
 

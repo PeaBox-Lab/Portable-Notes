@@ -1,5 +1,5 @@
 
-# Portable Notes 2.10 User Guide
+# Portable Notes 2.11 User Guide
 
 ## Start
 
@@ -45,3 +45,6 @@ Task Board automatically derives workflow lanes from task completion and due dat
 
 ## Focus view
 Choose **7-day focus** in the command palette to surface actionable open tasks. Overdue and today items lead the list, followed by dated upcoming work and undated high/medium-priority tasks.
+
+## Weekly review
+Choose **Weekly review** from the command palette. The review summarizes open and completed tasks, overdue work, tasks due in the next seven days, undated work, and workload grouped by project.

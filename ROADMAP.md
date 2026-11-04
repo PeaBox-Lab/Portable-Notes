@@ -42,3 +42,6 @@
 
 ## 2.10 Focus View ✅
 - Short-horizon prioritized work view delivered with configurable range.
+
+## 2.11 Weekly Review ✅
+- Weekly planning summary, project rollup, overdue, upcoming, and undated review groups delivered.

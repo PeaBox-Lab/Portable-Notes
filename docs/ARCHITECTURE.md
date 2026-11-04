@@ -30,3 +30,6 @@ Board lanes are calculated on demand from Markdown task status and due-date meta
 
 ## 2.10 focus view
 Focus data is calculated at request time from Markdown tasks. It does not persist a competing planning database.
+
+## 2.11 weekly review
+Review metrics are derived on demand from Markdown tasks and existing metadata. No separate planning database is introduced.
