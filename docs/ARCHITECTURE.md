@@ -24,3 +24,6 @@ The dashboard derives aggregate task/project statistics from indexed Markdown no
 
 ## 2.8 task calendar
 Calendar entries are derived directly from Markdown task due dates. No separate calendar database is introduced, preserving the file-first architecture.
+
+## 2.9 task board
+Board lanes are calculated on demand from Markdown task status and due-date metadata. There is no separate board-state database.

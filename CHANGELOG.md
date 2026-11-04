@@ -1,6 +1,18 @@
 # Changelog
 
-## [2.8.0] - 2026-11-05
+## [2.9.0] - 2026-11-05
+### Added
+- Kanban-style task board API
+- Overdue, Today, Upcoming, No Due Date, and Done lanes
+- Project board filtering
+- Priority-aware lane ordering
+- Task Board command
+
+### Retained
+- All v2.8 and earlier functionality.
+
+
+## [2.9.0] - 2026-11-05
 ### Added
 - Dated task calendar API
 - Date-range agenda filtering
@@ -11,7 +23,7 @@
 - All v2.7 and earlier functionality.
 
 
-## [2.8.0] - 2026-11-05
+## [2.9.0] - 2026-11-05
 ### Added
 - Task and project dashboard API
 - Vault-wide completion and overdue statistics

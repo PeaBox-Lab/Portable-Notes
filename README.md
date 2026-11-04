@@ -10,7 +10,7 @@ A private, local-first Markdown notes and personal knowledge-management applicat
 
 **Repository:** https://github.com/iwebslogtech/Portable-Notes
 
-## What's new in 2.8.0
+## What's new in 2.9.0
 
 - Persistent multi-note tabs and a smoother writing workflow
 - Find and replace with `Ctrl+F`
@@ -86,3 +86,6 @@ Use **Task & project dashboard** from the command palette for vault-wide totals 
 
 ## 2.8 task calendar
 Dated Markdown tasks now form a chronological agenda. Use **Task calendar** from the command palette, or query `/api/task-calendar?start=YYYY-MM-DD&end=YYYY-MM-DD`. Existing `due:` and `📅` syntax remains the source of truth.
+
+## 2.9 task board
+Use **Task board** from the command palette to group Markdown tasks into Overdue, Today, Upcoming, No Due Date, and Done lanes. The `/api/task-board?project=Name` endpoint can focus the board on one project.

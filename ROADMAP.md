@@ -36,3 +36,6 @@
 
 ## 2.8 Task Calendar ✅
 - Due-date agenda, date-range filtering, and calendar command delivered.
+
+## 2.9 Task Board ✅
+- Kanban-style task lanes, project filtering, and priority-aware ordering delivered.

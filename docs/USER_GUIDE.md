@@ -1,5 +1,5 @@
 
-# Portable Notes 2.8 User Guide
+# Portable Notes 2.9 User Guide
 
 ## Start
 
@@ -39,3 +39,6 @@ Open the command palette and choose **Task & project dashboard**. Tasks using `p
 
 ## Task calendar
 Tasks containing `due: YYYY-MM-DD` or `📅 YYYY-MM-DD` automatically appear in the Task calendar. The API supports `start` and `end` date parameters for bounded agenda views.
+
+## Task board
+Task Board automatically derives workflow lanes from task completion and due dates. Add project metadata to filter the API to one project. Markdown remains canonical.
