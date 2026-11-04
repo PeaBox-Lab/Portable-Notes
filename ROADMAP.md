@@ -51,3 +51,6 @@
 
 ## 2.13 Project Health ✅
 - Project completion, workload, risk signals, and next-due metrics delivered.
+
+## 2.14 Project Workspace ✅
+- Focused per-project workspace, source-note count, metrics, and risk-aware task ordering delivered.

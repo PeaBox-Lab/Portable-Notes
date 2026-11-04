@@ -1,6 +1,17 @@
 # Changelog
 
-## [2.13.0] - 2026-11-05
+## [2.14.0] - 2026-11-05
+### Added
+- Project Workspace API and command
+- Focused project metrics and task list
+- Source-note counts
+- Risk-aware project task ordering
+
+### Retained
+- All v2.13 and earlier functionality.
+
+
+## [2.14.0] - 2026-11-05
 ### Added
 - Project Health API and command
 - Per-project completion and workload metrics
@@ -11,7 +22,7 @@
 - All v2.12 and earlier functionality.
 
 
-## [2.13.0] - 2026-11-05
+## [2.14.0] - 2026-11-05
 ### Added
 - Productivity statistics API and command
 - Completion percentage
@@ -22,7 +33,7 @@
 - All v2.11 and earlier functionality.
 
 
-## [2.13.0] - 2026-11-05
+## [2.14.0] - 2026-11-05
 ### Added
 - Weekly review API and command
 - Review summary metrics
@@ -33,7 +44,7 @@
 - All v2.10 and earlier functionality.
 
 
-## [2.13.0] - 2026-11-05
+## [2.14.0] - 2026-11-05
 ### Added
 - Configurable task Focus API
 - Overdue/today/upcoming/priority focus buckets
@@ -44,7 +55,7 @@
 - All v2.9 and earlier functionality.
 
 
-## [2.13.0] - 2026-11-05
+## [2.14.0] - 2026-11-05
 ### Added
 - Kanban-style task board API
 - Overdue, Today, Upcoming, No Due Date, and Done lanes
@@ -56,7 +67,7 @@
 - All v2.8 and earlier functionality.
 
 
-## [2.13.0] - 2026-11-05
+## [2.14.0] - 2026-11-05
 ### Added
 - Dated task calendar API
 - Date-range agenda filtering
@@ -67,7 +78,7 @@
 - All v2.7 and earlier functionality.
 
 
-## [2.13.0] - 2026-11-05
+## [2.14.0] - 2026-11-05
 ### Added
 - Task and project dashboard API
 - Vault-wide completion and overdue statistics

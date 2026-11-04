@@ -1,5 +1,5 @@
 
-# Portable Notes 2.13 User Guide
+# Portable Notes 2.14 User Guide
 
 ## Start
 
@@ -54,3 +54,6 @@ Choose **Productivity stats** from the command palette. It reports completion pe
 
 ## Project health
 Choose **Project health** in the command palette. Each project shows completion percentage, open tasks, overdue tasks, high-priority tasks, and its next open due date.
+
+## Project workspace
+Choose **Project workspace**, enter the project identifier used in `project: Name` or `#project/Name`, and review completion, risk metrics, source-note count, and project tasks.

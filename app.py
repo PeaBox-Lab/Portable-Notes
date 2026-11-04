@@ -1,6 +1,6 @@
 
 #!/usr/bin/env python3
-# Portable Notes 2.13.0: local-first Markdown vault with task intelligence.
+# Portable Notes 2.14.0: local-first Markdown vault with task intelligence.
 from __future__ import annotations
 import argparse, hashlib, html, io, json, mimetypes, os, re, shutil, sqlite3, threading, time, webbrowser, zipfile
 from datetime import datetime, timedelta, timezone
@@ -25,7 +25,7 @@ def norm_rel(value):
     return value
 
 def load_cfg():
-    default={'vault':str(DEFAULT_VAULT),'theme':'system','version':'2.13.0'}
+    default={'vault':str(DEFAULT_VAULT),'theme':'system','version':'2.14.0'}
     if CONFIG.exists():
         try: default.update(json.loads(CONFIG.read_text(encoding='utf-8')))
         except Exception: pass
@@ -318,6 +318,25 @@ class Handler(SimpleHTTPRequestHandler):
                     z['total']+=1; z['done' if x['done'] else 'open']+=1
                 completion=round((done/total*100),1) if total else 0.0
                 return self.send_json({'date':today_s,'total':total,'open':open_n,'done':done,'completion_percent':completion,'overdue':overdue,'due_today':due_today,'priorities':priorities,'projects':sorted(projects.values(),key=lambda x:(-x['open'],x['project'].lower()))})
+            if u.path=='/api/task-project':
+                refresh(); name=q.get('project',[''])[0].strip()
+                if not name: return self.fail('project is required',400)
+                items=[]; today=datetime.now().date().isoformat(); notes=set()
+                with sqlite3.connect(DB) as db: db.row_factory=sqlite3.Row; rows=db.execute('SELECT * FROM notes').fetchall()
+                for r in rows:
+                    d=serialize(r)
+                    for line_no,line in enumerate(d['content'].splitlines(),1):
+                        m=re.match(r'^\s*- \[( |x|X)\]\s+(.+)$',line)
+                        if not m: continue
+                        text=m.group(2).strip(); jm=re.search(r'(?:project:\s*|#project/)([A-Za-z0-9._-]+)',text,re.I); project=jm.group(1) if jm else 'Unassigned'
+                        if project.lower()!=name.lower(): continue
+                        done=m.group(1).lower()=='x'; dm=re.search(r'(?:📅|due:)\s*(\d{4}-\d{2}-\d{2})',text,re.I); due=dm.group(1) if dm else None
+                        pm=re.search(r'(?:priority:\s*|!)(high|medium|low)\b',text,re.I); priority=pm.group(1).lower() if pm else 'normal'
+                        notes.add(d['path']); items.append({'done':done,'due':due,'priority':priority,'project':project,'text':text,'note':d['title'],'path':d['path'],'line':line_no,'overdue':bool(not done and due and due<today)})
+                open_items=[x for x in items if not x['done']]; done_items=[x for x in items if x['done']]; weight={'high':0,'medium':1,'normal':2,'low':3}
+                open_items.sort(key=lambda x:(not x['overdue'],x['due'] or '9999-12-31',weight.get(x['priority'],2),x['note'].lower()))
+                total=len(items); done=len(done_items)
+                return self.send_json({'project':name,'total':total,'open':len(open_items),'done':done,'completion_percent':round(done/total*100,1) if total else 0.0,'overdue':sum(x['overdue'] for x in items),'high':sum(not x['done'] and x['priority']=='high' for x in items),'next_due':min((x['due'] for x in open_items if x['due']),default=None),'source_notes':len(notes),'tasks':open_items+done_items})
             if u.path=='/api/task-projects':
                 refresh(); items=[]; today=datetime.now().date().isoformat()
                 with sqlite3.connect(DB) as db: db.row_factory=sqlite3.Row; rows=db.execute('SELECT * FROM notes').fetchall()
@@ -366,13 +385,13 @@ class Handler(SimpleHTTPRequestHandler):
                 with zipfile.ZipFile(mem,'w',zipfile.ZIP_DEFLATED) as z:
                     for p in vault().rglob('*'):
                         if p.is_file() and '.portable-notes' not in p.parts: z.write(p,p.relative_to(vault()))
-                    z.writestr('portable-notes-backup.json',json.dumps({'version':'2.13.0','created':iso(),'vault':str(vault())},indent=2))
+                    z.writestr('portable-notes-backup.json',json.dumps({'version':'2.14.0','created':iso(),'vault':str(vault())},indent=2))
                 raw=mem.getvalue(); self.send_response(200); self.send_header('Content-Type','application/zip'); self.send_header('Content-Disposition','attachment; filename="portable-notes-vault-backup.zip"'); self.send_header('Content-Length',str(len(raw))); self.end_headers(); return self.wfile.write(raw)
             if u.path=='/api/attachment':
                 rel=norm_rel(q.get('path',[''])[0]); p=md_path(rel)
                 if not p.exists() or p.is_dir(): return self.fail('Attachment not found',404)
                 raw=p.read_bytes(); self.send_response(200); self.send_header('Content-Type',mimetypes.guess_type(p.name)[0] or 'application/octet-stream'); self.send_header('Content-Length',str(len(raw))); self.end_headers(); return self.wfile.write(raw)
-            if u.path=='/api/health': return self.send_json({'ok':True,'version':'2.13.0','vault':str(vault()),'notes':rebuild()})
+            if u.path=='/api/health': return self.send_json({'ok':True,'version':'2.14.0','vault':str(vault()),'notes':rebuild()})
             if u.path=='/': self.path='/static/index.html'
             return super().do_GET()
         except Exception as e: return self.fail(e)
@@ -429,7 +448,7 @@ def main():
     global CFG
     if args.vault: CFG['vault']=str(Path(args.vault).expanduser().resolve()); save_cfg()
     seed(); rebuild(); os.chdir(ROOT); server=ThreadingHTTPServer((HOST,args.port),Handler); url=f'http://{HOST}:{args.port}'
-    print(f'Portable Notes 2.13.0 running at {url}\nVault: {vault()}\nPress Ctrl+C to stop.')
+    print(f'Portable Notes 2.14.0 running at {url}\nVault: {vault()}\nPress Ctrl+C to stop.')
     if not args.no_browser: threading.Timer(.5,lambda:webbrowser.open(url)).start()
     try:server.serve_forever()
     except KeyboardInterrupt:print('\nStopped.')

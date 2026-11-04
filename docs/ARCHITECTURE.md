@@ -39,3 +39,6 @@ Metrics are calculated on demand from Markdown task state and metadata. Analytic
 
 ## 2.13 project health
 Project-health metrics are reconstructed from Markdown tasks at request time, preserving the vault as the canonical data source.
+
+## 2.14 project workspace
+A project workspace is a request-time projection of Markdown task metadata. It introduces no separate project database and remains fully reconstructable from the vault.

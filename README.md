@@ -10,7 +10,7 @@ A private, local-first Markdown notes and personal knowledge-management applicat
 
 **Repository:** https://github.com/iwebslogtech/Portable-Notes
 
-## What's new in 2.13.0
+## What's new in 2.14.0
 
 - Persistent multi-note tabs and a smoother writing workflow
 - Find and replace with `Ctrl+F`
@@ -101,3 +101,6 @@ Use **Productivity stats** from the command palette for completion percentage, o
 
 ## 2.13 project health
 Use **Project health** from the command palette to compare project completion, open work, overdue items, high-priority work, and next due dates. Projects with greater task risk appear first.
+
+## 2.14 project workspace
+Use **Project workspace** from the command palette, enter a project name, and get focused metrics plus its ordered tasks and source-note count. The workspace is derived directly from Markdown project metadata.
