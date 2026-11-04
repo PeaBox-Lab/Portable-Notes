@@ -10,7 +10,7 @@ A private, local-first Markdown notes and personal knowledge-management applicat
 
 **Repository:** https://github.com/iwebslogtech/Portable-Notes
 
-## What's new in 2.14.0
+## What's new in 2.15.0
 
 - Persistent multi-note tabs and a smoother writing workflow
 - Find and replace with `Ctrl+F`
@@ -104,3 +104,6 @@ Use **Project health** from the command palette to compare project completion, o
 
 ## 2.14 project workspace
 Use **Project workspace** from the command palette, enter a project name, and get focused metrics plus its ordered tasks and source-note count. The workspace is derived directly from Markdown project metadata.
+
+## 2.15 project timeline
+Use **Project timeline** to see dated work chronologically across the vault or for one project, plus monthly open/completed rollups.

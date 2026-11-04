@@ -54,3 +54,6 @@
 
 ## 2.14 Project Workspace ✅
 - Focused per-project workspace, source-note count, metrics, and risk-aware task ordering delivered.
+
+## 2.15 Project Timeline ✅
+- Chronological project timeline, filtering, and monthly progress rollups delivered.

@@ -42,3 +42,6 @@ Project-health metrics are reconstructed from Markdown tasks at request time, pr
 
 ## 2.14 project workspace
 A project workspace is a request-time projection of Markdown task metadata. It introduces no separate project database and remains fully reconstructable from the vault.
+
+## 2.15 project timeline
+Timeline data is derived from Markdown task due-date and project metadata at request time; no parallel planning store is introduced.
