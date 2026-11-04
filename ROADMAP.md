@@ -48,3 +48,6 @@
 
 ## 2.12 Productivity Stats ✅
 - Completion, urgency, priority, and project-level task analytics delivered.
+
+## 2.13 Project Health ✅
+- Project completion, workload, risk signals, and next-due metrics delivered.

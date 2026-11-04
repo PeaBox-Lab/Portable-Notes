@@ -36,3 +36,6 @@ Review metrics are derived on demand from Markdown tasks and existing metadata. 
 
 ## 2.12 productivity statistics
 Metrics are calculated on demand from Markdown task state and metadata. Analytics remain disposable and reconstructable from the vault.
+
+## 2.13 project health
+Project-health metrics are reconstructed from Markdown tasks at request time, preserving the vault as the canonical data source.
