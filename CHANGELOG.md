@@ -1,6 +1,17 @@
 # Changelog
 
-## [2.9.0] - 2026-11-05
+## [2.10.0] - 2026-11-05
+### Added
+- Configurable task Focus API
+- Overdue/today/upcoming/priority focus buckets
+- Priority-aware focus sorting
+- 7-day Focus command
+
+### Retained
+- All v2.9 and earlier functionality.
+
+
+## [2.10.0] - 2026-11-05
 ### Added
 - Kanban-style task board API
 - Overdue, Today, Upcoming, No Due Date, and Done lanes
@@ -12,7 +23,7 @@
 - All v2.8 and earlier functionality.
 
 
-## [2.9.0] - 2026-11-05
+## [2.10.0] - 2026-11-05
 ### Added
 - Dated task calendar API
 - Date-range agenda filtering
@@ -23,7 +34,7 @@
 - All v2.7 and earlier functionality.
 
 
-## [2.9.0] - 2026-11-05
+## [2.10.0] - 2026-11-05
 ### Added
 - Task and project dashboard API
 - Vault-wide completion and overdue statistics

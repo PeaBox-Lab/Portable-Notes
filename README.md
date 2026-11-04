@@ -10,7 +10,7 @@ A private, local-first Markdown notes and personal knowledge-management applicat
 
 **Repository:** https://github.com/iwebslogtech/Portable-Notes
 
-## What's new in 2.9.0
+## What's new in 2.10.0
 
 - Persistent multi-note tabs and a smoother writing workflow
 - Find and replace with `Ctrl+F`
@@ -89,3 +89,6 @@ Dated Markdown tasks now form a chronological agenda. Use **Task calendar** from
 
 ## 2.9 task board
 Use **Task board** from the command palette to group Markdown tasks into Overdue, Today, Upcoming, No Due Date, and Done lanes. The `/api/task-board?project=Name` endpoint can focus the board on one project.
+
+## 2.10 focus view
+Use **7-day focus** from the command palette for overdue, today, near-term, and important undated work. The API accepts `/api/task-focus?days=N` with a bounded horizon up to 365 days.

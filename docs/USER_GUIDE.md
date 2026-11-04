@@ -1,5 +1,5 @@
 
-# Portable Notes 2.9 User Guide
+# Portable Notes 2.10 User Guide
 
 ## Start
 
@@ -42,3 +42,6 @@ Tasks containing `due: YYYY-MM-DD` or `📅 YYYY-MM-DD` automatically appear in 
 
 ## Task board
 Task Board automatically derives workflow lanes from task completion and due dates. Add project metadata to filter the API to one project. Markdown remains canonical.
+
+## Focus view
+Choose **7-day focus** in the command palette to surface actionable open tasks. Overdue and today items lead the list, followed by dated upcoming work and undated high/medium-priority tasks.

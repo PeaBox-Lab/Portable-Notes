@@ -27,3 +27,6 @@ Calendar entries are derived directly from Markdown task due dates. No separate 
 
 ## 2.9 task board
 Board lanes are calculated on demand from Markdown task status and due-date metadata. There is no separate board-state database.
+
+## 2.10 focus view
+Focus data is calculated at request time from Markdown tasks. It does not persist a competing planning database.

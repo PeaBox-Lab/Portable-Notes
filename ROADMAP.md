@@ -39,3 +39,6 @@
 
 ## 2.9 Task Board ✅
 - Kanban-style task lanes, project filtering, and priority-aware ordering delivered.
+
+## 2.10 Focus View ✅
+- Short-horizon prioritized work view delivered with configurable range.
