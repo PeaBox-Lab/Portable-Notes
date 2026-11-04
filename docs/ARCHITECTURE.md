@@ -75,3 +75,6 @@ Forecasts are deterministic request-time projections from open Markdown task est
 
 ## 2.25 schedule plan
 Scheduling is deterministic and transient. Open Markdown tasks are ordered by due date and priority, then packed into daily capacity buckets; no separate schedule store is created.
+
+## 2.26 schedule slippage
+Schedule variance is computed from baseline and current due-date metadata in Markdown. Positive days mean slippage, negative days mean ahead of baseline, and zero means unchanged.

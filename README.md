@@ -10,7 +10,7 @@ A private, local-first Markdown notes and personal knowledge-management applicat
 
 **Repository:** https://github.com/iwebslogtech/Portable-Notes
 
-## What's new in 2.25.0
+## What's new in 2.26.0
 
 - Persistent multi-note tabs and a smoother writing workflow
 - Find and replace with `Ctrl+F`
@@ -137,3 +137,6 @@ Use **Delivery forecast** to estimate project duration from remaining Markdown e
 
 ## 2.25 schedule plan
 Use **Schedule plan** to turn open tasks into a daily execution sequence using configurable daily capacity. Tasks are ordered by due date and priority and large estimates can be split across days.
+
+## 2.26 schedule slippage
+Add `baseline: YYYY-MM-DD` (or `base:`) alongside a task due date. **Schedule slippage** compares baseline versus current due date and reports slipped, ahead, or on-baseline work with project-level averages and maximum slip.

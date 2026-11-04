@@ -1,5 +1,5 @@
 
-# Portable Notes 2.25 User Guide
+# Portable Notes 2.26 User Guide
 
 ## Start
 
@@ -90,3 +90,6 @@ Choose **Delivery forecast**, provide weekly capacity, and optionally a project.
 
 ## Schedule plan
 Choose **Schedule plan**, enter daily hours, and optionally a project. Portable Notes creates a due-date and priority ordered execution plan and divides large tasks across capacity-constrained days.
+
+## Schedule slippage
+Add a baseline date such as `baseline: 2026-11-10` to a dated task. When the current `due:` date changes, **Schedule slippage** shows the variance in days and aggregates schedule movement by project.

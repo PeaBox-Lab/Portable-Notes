@@ -87,3 +87,6 @@
 
 ## 2.25 Schedule Plan ✅
 - Daily capacity planning, due-date and priority ordering, effort splitting, and projected plan finish delivered.
+
+## 2.26 Schedule Slippage ✅
+- Baseline dates, due-date variance, slipped/ahead/on-baseline classification, project rollups, and filtering delivered.
