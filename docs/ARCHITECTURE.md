@@ -66,3 +66,6 @@ Effort and load metrics are calculated on demand from Markdown task metadata. Th
 
 ## 2.22 capacity planning
 Capacity metrics are request-time projections from Markdown due dates and effort estimates. Status thresholds are deterministic: Available under 80%, Tight at 80%-100%, Overloaded above 100%.
+
+## 2.23 burndown planning
+Burndown points are derived on demand from open Markdown tasks, due dates, and estimates. Unestimated tasks use a documented 1-hour visibility default rather than being silently ignored.

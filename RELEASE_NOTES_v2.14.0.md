@@ -1,4 +1,4 @@
-# Portable Notes 2.22.0: Project Workspace
+# Portable Notes 2.23.0: Project Workspace
 
 This cumulative release adds a focused project workspace while preserving every earlier Portable Notes capability.
 

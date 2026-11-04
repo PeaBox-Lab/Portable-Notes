@@ -1,5 +1,5 @@
 
-# Portable Notes 2.22 User Guide
+# Portable Notes 2.23 User Guide
 
 ## Start
 
@@ -81,3 +81,6 @@ Add an effort estimate such as `estimate: 3h` or `est: 1.5h`. Choose **Workload*
 
 ## Capacity planning
 Choose **Capacity**, provide weekly available hours, and optionally a project. Portable Notes compares estimated work due within seven days against that capacity and reports utilization, remaining hours, overdue work, and unestimated tasks.
+
+## Burndown planning
+Choose **Burndown**, optionally provide a project, and choose a horizon from 1 to 90 days. The view compares ideal remaining effort with work implied by task due dates.

@@ -78,3 +78,6 @@
 
 ## 2.22 Capacity Planning ✅
 - Configurable capacity, seven-day utilization, remaining hours, load-status thresholds, and unestimated-work visibility delivered.
+
+## 2.23 Burndown Planning ✅
+- Configurable burndown horizon, ideal trajectory, scheduled trajectory, project filtering, and unestimated-work visibility delivered.
