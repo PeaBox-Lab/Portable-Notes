@@ -1,5 +1,5 @@
 
-# Portable Notes 2.24 User Guide
+# Portable Notes 2.25 User Guide
 
 ## Start
 
@@ -87,3 +87,6 @@ Choose **Burndown**, optionally provide a project, and choose a horizon from 1 t
 
 ## Delivery forecast
 Choose **Delivery forecast**, provide weekly capacity, and optionally a project. The forecast reports remaining effort, estimated weeks, projected finish date, latest due date, and schedule status.
+
+## Schedule plan
+Choose **Schedule plan**, enter daily hours, and optionally a project. Portable Notes creates a due-date and priority ordered execution plan and divides large tasks across capacity-constrained days.

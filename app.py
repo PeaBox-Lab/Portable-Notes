@@ -1,6 +1,6 @@
 
 #!/usr/bin/env python3
-# Portable Notes 2.24.0: local-first Markdown vault with task intelligence.
+# Portable Notes 2.25.0: local-first Markdown vault with task intelligence.
 from __future__ import annotations
 import argparse, hashlib, html, io, json, mimetypes, os, re, shutil, sqlite3, threading, time, webbrowser, zipfile
 from datetime import datetime, timedelta, timezone
@@ -25,7 +25,7 @@ def norm_rel(value):
     return value
 
 def load_cfg():
-    default={'vault':str(DEFAULT_VAULT),'theme':'system','version':'2.24.0'}
+    default={'vault':str(DEFAULT_VAULT),'theme':'system','version':'2.25.0'}
     if CONFIG.exists():
         try: default.update(json.loads(CONFIG.read_text(encoding='utf-8')))
         except Exception: pass
@@ -586,6 +586,33 @@ class Handler(SimpleHTTPRequestHandler):
                     days=max(1,round(z['weeks_needed']*7)); z['capacity_finish']=(today+timedelta(days=days)).isoformat(); z['schedule_status']='at_risk' if z['latest_due'] and z['capacity_finish']>z['latest_due'] else 'on_track'; z['capacity_hours_per_week']=capacity; data.append(z)
                 data.sort(key=lambda z:(z['schedule_status']!='at_risk',-z['weeks_needed'],z['project'].lower()))
                 return self.send_json({'date':today.isoformat(),'capacity_hours_per_week':capacity,'project':project or None,'projects':data})
+            if u.path=='/api/task-schedule':
+                refresh(); project=q.get('project',[''])[0].strip(); capacity=max(1.0,min(float(q.get('hours',['8'])[0] or 8),24.0)); today=datetime.now().date(); items=[]
+                with sqlite3.connect(DB) as db: db.row_factory=sqlite3.Row; rows=db.execute('SELECT * FROM notes').fetchall()
+                for r in rows:
+                    d=serialize(r)
+                    for line_no,line in enumerate(d['content'].splitlines(),1):
+                        m=re.match(r'^\s*- \[( |x|X)\]\s+(.+)$',line)
+                        if not m or m.group(1).lower()=='x': continue
+                        text=m.group(2).strip(); jm=re.search(r'(?:project:\s*|#project/)([A-Za-z0-9._-]+)',text,re.I); proj=jm.group(1) if jm else 'Unassigned'
+                        if project and proj.lower()!=project.lower(): continue
+                        dm=re.search(r'(?:📅|due:)\s*(\d{4}-\d{2}-\d{2})',text,re.I); due=dm.group(1) if dm else None
+                        em=re.search(r'(?:estimate:|est:)\s*(\d+(?:\.\d+)?)h\b',text,re.I); estimate=float(em.group(1)) if em else 1.0
+                        pm=re.search(r'(?:priority:\s*|!)(high|medium|low)\b',text,re.I); priority=pm.group(1).lower() if pm else 'normal'
+                        items.append({'project':proj,'due':due,'estimate_hours':estimate,'priority':priority,'text':text,'note':d['title'],'path':d['path'],'line':line_no})
+                weight={'high':0,'medium':1,'normal':2,'low':3}; items.sort(key=lambda x:(x['due'] or '9999-12-31',weight.get(x['priority'],2),x['project'].lower(),x['note'].lower()))
+                days=[]; cursor=today; remaining=capacity; bucket=[]
+                def flush():
+                    nonlocal cursor,remaining,bucket
+                    if bucket: days.append({'date':cursor.isoformat(),'hours':round(capacity-remaining,1),'tasks':bucket})
+                    cursor+=timedelta(days=1); remaining=capacity; bucket=[]
+                for x in items:
+                    left=x['estimate_hours']
+                    while left>0:
+                        take=min(left,remaining); part=dict(x,scheduled_hours=round(take,1)); bucket.append(part); remaining=round(remaining-take,10); left=round(left-take,10)
+                        if remaining<=0: flush()
+                if bucket: days.append({'date':cursor.isoformat(),'hours':round(capacity-remaining,1),'tasks':bucket})
+                return self.send_json({'project':project or None,'daily_capacity_hours':capacity,'start':today.isoformat(),'finish':days[-1]['date'] if days else today.isoformat(),'open_tasks':len(items),'total_hours':round(sum(x['estimate_hours'] for x in items),1),'days':days})
             if u.path=='/api/task-projects':
                 refresh(); items=[]; today=datetime.now().date().isoformat()
                 with sqlite3.connect(DB) as db: db.row_factory=sqlite3.Row; rows=db.execute('SELECT * FROM notes').fetchall()
@@ -634,13 +661,13 @@ class Handler(SimpleHTTPRequestHandler):
                 with zipfile.ZipFile(mem,'w',zipfile.ZIP_DEFLATED) as z:
                     for p in vault().rglob('*'):
                         if p.is_file() and '.portable-notes' not in p.parts: z.write(p,p.relative_to(vault()))
-                    z.writestr('portable-notes-backup.json',json.dumps({'version':'2.24.0','created':iso(),'vault':str(vault())},indent=2))
+                    z.writestr('portable-notes-backup.json',json.dumps({'version':'2.25.0','created':iso(),'vault':str(vault())},indent=2))
                 raw=mem.getvalue(); self.send_response(200); self.send_header('Content-Type','application/zip'); self.send_header('Content-Disposition','attachment; filename="portable-notes-vault-backup.zip"'); self.send_header('Content-Length',str(len(raw))); self.end_headers(); return self.wfile.write(raw)
             if u.path=='/api/attachment':
                 rel=norm_rel(q.get('path',[''])[0]); p=md_path(rel)
                 if not p.exists() or p.is_dir(): return self.fail('Attachment not found',404)
                 raw=p.read_bytes(); self.send_response(200); self.send_header('Content-Type',mimetypes.guess_type(p.name)[0] or 'application/octet-stream'); self.send_header('Content-Length',str(len(raw))); self.end_headers(); return self.wfile.write(raw)
-            if u.path=='/api/health': return self.send_json({'ok':True,'version':'2.24.0','vault':str(vault()),'notes':rebuild()})
+            if u.path=='/api/health': return self.send_json({'ok':True,'version':'2.25.0','vault':str(vault()),'notes':rebuild()})
             if u.path=='/': self.path='/static/index.html'
             return super().do_GET()
         except Exception as e: return self.fail(e)
@@ -697,7 +724,7 @@ def main():
     global CFG
     if args.vault: CFG['vault']=str(Path(args.vault).expanduser().resolve()); save_cfg()
     seed(); rebuild(); os.chdir(ROOT); server=ThreadingHTTPServer((HOST,args.port),Handler); url=f'http://{HOST}:{args.port}'
-    print(f'Portable Notes 2.24.0 running at {url}\nVault: {vault()}\nPress Ctrl+C to stop.')
+    print(f'Portable Notes 2.25.0 running at {url}\nVault: {vault()}\nPress Ctrl+C to stop.')
     if not args.no_browser: threading.Timer(.5,lambda:webbrowser.open(url)).start()
     try:server.serve_forever()
     except KeyboardInterrupt:print('\nStopped.')

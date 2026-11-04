@@ -72,3 +72,6 @@ Burndown points are derived on demand from open Markdown tasks, due dates, and e
 
 ## 2.24 delivery forecast
 Forecasts are deterministic request-time projections from open Markdown task estimates and weekly capacity. They do not use statistical prediction and remain fully explainable.
+
+## 2.25 schedule plan
+Scheduling is deterministic and transient. Open Markdown tasks are ordered by due date and priority, then packed into daily capacity buckets; no separate schedule store is created.

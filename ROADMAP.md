@@ -84,3 +84,6 @@
 
 ## 2.24 Delivery Forecast ✅
 - Capacity-based remaining-effort forecast, projected finish date, due-date comparison, and schedule-risk status delivered.
+
+## 2.25 Schedule Plan ✅
+- Daily capacity planning, due-date and priority ordering, effort splitting, and projected plan finish delivered.

@@ -1,4 +1,4 @@
-# Portable Notes 2.24.0: Risk Radar
+# Portable Notes 2.25.0: Risk Radar
 
 This cumulative release adds deterministic task-risk scoring on top of due dates, priorities, and dependency metadata.
 
