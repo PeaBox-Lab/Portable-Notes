@@ -10,7 +10,7 @@ A private, local-first Markdown notes and personal knowledge-management applicat
 
 **Repository:** https://github.com/iwebslogtech/Portable-Notes
 
-## What's new in 2.19.0
+## What's new in 2.20.0
 
 - Persistent multi-note tabs and a smoother writing workflow
 - Find and replace with `Ctrl+F`
@@ -119,3 +119,6 @@ Assign `taskid: Build` (or `#task/Build`) and link another task with `depends: B
 
 ## 2.19 critical path
 Use **Critical path** to analyze task-ID dependency chains, identify the deepest chain candidates, and surface dependency cycles.
+
+## 2.20 risk radar
+Use **Risk radar** to prioritize open work by deterministic risk score. Overdue, high-priority, dependency-blocked, and unresolved-dependency tasks receive progressively higher scores.

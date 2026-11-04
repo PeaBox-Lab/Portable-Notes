@@ -1,4 +1,4 @@
-# Portable Notes 2.19.0: Project Health
+# Portable Notes 2.20.0: Project Health
 
 This cumulative release adds project-level health summaries derived from Markdown tasks.
 

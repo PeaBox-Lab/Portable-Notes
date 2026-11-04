@@ -1,5 +1,5 @@
 
-# Portable Notes 2.19 User Guide
+# Portable Notes 2.20 User Guide
 
 ## Start
 
@@ -72,3 +72,6 @@ Give tasks IDs using `taskid: ID` or `#task/ID`. Add one or more `depends: ID` o
 
 ## Critical path
 After assigning task IDs and dependencies, choose **Critical path**. Portable Notes calculates dependency depth, highlights the deepest chain candidates, and reports cycles.
+
+## Risk radar
+Choose **Risk radar** and optionally a project. Tasks are classified Critical, High, Medium, or Low using overdue status, priority, and dependency signals; the displayed reasons explain each score.

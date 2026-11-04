@@ -57,3 +57,6 @@ Dependency state is derived from Markdown task IDs, dependency references, and c
 
 ## 2.19 critical path
 Dependency depth is computed with memoized graph traversal over Markdown task IDs. Cycle detection prevents recursive dependency loops from hanging analysis.
+
+## 2.20 risk radar
+Risk is deterministic and derived at request time from Markdown metadata. No opaque model or parallel risk database is used.

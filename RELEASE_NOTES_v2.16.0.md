@@ -1,4 +1,4 @@
-# Portable Notes 2.19.0: Milestones
+# Portable Notes 2.20.0: Milestones
 
 This cumulative release adds milestone tracking to Markdown tasks while retaining all earlier functionality.
 

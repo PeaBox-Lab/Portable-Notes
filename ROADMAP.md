@@ -69,3 +69,6 @@
 
 ## 2.19 Critical Path ✅
 - Dependency-depth analysis, critical-chain candidates, project filtering, and cycle detection delivered.
+
+## 2.20 Risk Radar ✅
+- Deterministic task risk scoring, severity bands, reasons, and project filtering delivered.
