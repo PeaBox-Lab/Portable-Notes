@@ -63,3 +63,6 @@
 
 ## 2.17 Milestone Board ✅
 - Milestone execution lanes, filters, progress summaries, and priority-aware ordering delivered.
+
+## 2.18 Task Dependencies ✅
+- Markdown task IDs, dependency references, blocking analysis, unresolved-reference diagnostics, and project filtering delivered.

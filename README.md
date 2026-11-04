@@ -10,7 +10,7 @@ A private, local-first Markdown notes and personal knowledge-management applicat
 
 **Repository:** https://github.com/iwebslogtech/Portable-Notes
 
-## What's new in 2.17.0
+## What's new in 2.18.0
 
 - Persistent multi-note tabs and a smoother writing workflow
 - Find and replace with `Ctrl+F`
@@ -113,3 +113,6 @@ Add `milestone: Release1` or `#milestone/Release1` to Markdown tasks. Use **Mile
 
 ## 2.17 milestone board
 Use **Milestone board** to operationalize milestone-tagged Markdown tasks in Overdue, Active, and Done lanes, optionally filtered to one project or milestone.
+
+## 2.18 task dependencies
+Assign `taskid: Build` (or `#task/Build`) and link another task with `depends: Build` (or `#depends/Build`). **Task dependencies** identifies ready work, blocked tasks, and unresolved references.

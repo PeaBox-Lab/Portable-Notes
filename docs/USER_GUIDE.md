@@ -1,5 +1,5 @@
 
-# Portable Notes 2.17 User Guide
+# Portable Notes 2.18 User Guide
 
 ## Start
 
@@ -66,3 +66,6 @@ Add milestone metadata to a task with `milestone: Name` or `#milestone/Name`. Op
 
 ## Milestone board
 Open **Milestone board**, optionally enter a project and milestone, and review milestone tasks in Overdue, Active, and Done lanes with progress summaries.
+
+## Task dependencies
+Give tasks IDs using `taskid: ID` or `#task/ID`. Add one or more `depends: ID` or `#depends/ID` references to dependent tasks. Open **Task dependencies** to inspect Ready, Blocked, and Unresolved work.

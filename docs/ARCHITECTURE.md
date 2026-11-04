@@ -51,3 +51,6 @@ Milestone state is derived from Markdown task metadata at request time, so the v
 
 ## 2.17 milestone board
 Board lanes and milestone progress are projections of Markdown task metadata and are reconstructed per request.
+
+## 2.18 task dependencies
+Dependency state is derived from Markdown task IDs, dependency references, and completion status. No separate workflow database is introduced.
