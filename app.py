@@ -1,6 +1,6 @@
 
 #!/usr/bin/env python3
-# Portable Notes 2.4.0: local-first Markdown vault with search and knowledge tools.
+# Portable Notes 2.5.0: local-first Markdown vault with tasks and projects.
 from __future__ import annotations
 import argparse, hashlib, html, io, json, mimetypes, os, re, shutil, sqlite3, threading, time, webbrowser, zipfile
 from datetime import datetime, timezone
@@ -25,7 +25,7 @@ def norm_rel(value):
     return value
 
 def load_cfg():
-    default={'vault':str(DEFAULT_VAULT),'theme':'system','version':'2.4.0'}
+    default={'vault':str(DEFAULT_VAULT),'theme':'system','version':'2.5.0'}
     if CONFIG.exists():
         try: default.update(json.loads(CONFIG.read_text(encoding='utf-8')))
         except Exception: pass
@@ -175,6 +175,22 @@ class Handler(SimpleHTTPRequestHandler):
                     d=serialize(r); key=re.sub(r'\s+',' ',re.sub(r'[^a-z0-9 ]','',d['content'].lower())).strip()
                     if len(key)>=40: groups.setdefault(hashlib.sha1(key.encode()).hexdigest(),[]).append({'path':d['path'],'title':d['title']})
                 return self.send_json([v for v in groups.values() if len(v)>1])
+            if u.path=='/api/tasks':
+                refresh(); tasks=[]
+                with sqlite3.connect(DB) as db: db.row_factory=sqlite3.Row; rows=db.execute('SELECT * FROM notes').fetchall()
+                for r in rows:
+                    d=serialize(r)
+                    for line_no,line in enumerate(d['content'].splitlines(),1):
+                        m=re.match(r'^\s*- \[( |x|X)\]\s+(.+)$',line)
+                        if not m: continue
+                        text=m.group(2).strip(); due=None
+                        dm=re.search(r'(?:📅|due:)\s*(\d{4}-\d{2}-\d{2})',text,re.I)
+                        if dm: due=dm.group(1)
+                        tasks.append({'path':d['path'],'note':d['title'],'line':line_no,'text':text,'done':m.group(1).lower()=='x','due':due})
+                status=q.get('status',['all'])[0]
+                if status=='open': tasks=[x for x in tasks if not x['done']]
+                elif status=='done': tasks=[x for x in tasks if x['done']]
+                return self.send_json(tasks)
             if u.path=='/api/note':
                 rel=norm_rel(q.get('path',[''])[0]); p=md_path(rel)
                 if not p.exists(): return self.fail('Note not found',404)
@@ -200,13 +216,13 @@ class Handler(SimpleHTTPRequestHandler):
                 with zipfile.ZipFile(mem,'w',zipfile.ZIP_DEFLATED) as z:
                     for p in vault().rglob('*'):
                         if p.is_file() and '.portable-notes' not in p.parts: z.write(p,p.relative_to(vault()))
-                    z.writestr('portable-notes-backup.json',json.dumps({'version':'2.4.0','created':iso(),'vault':str(vault())},indent=2))
+                    z.writestr('portable-notes-backup.json',json.dumps({'version':'2.5.0','created':iso(),'vault':str(vault())},indent=2))
                 raw=mem.getvalue(); self.send_response(200); self.send_header('Content-Type','application/zip'); self.send_header('Content-Disposition','attachment; filename="portable-notes-vault-backup.zip"'); self.send_header('Content-Length',str(len(raw))); self.end_headers(); return self.wfile.write(raw)
             if u.path=='/api/attachment':
                 rel=norm_rel(q.get('path',[''])[0]); p=md_path(rel)
                 if not p.exists() or p.is_dir(): return self.fail('Attachment not found',404)
                 raw=p.read_bytes(); self.send_response(200); self.send_header('Content-Type',mimetypes.guess_type(p.name)[0] or 'application/octet-stream'); self.send_header('Content-Length',str(len(raw))); self.end_headers(); return self.wfile.write(raw)
-            if u.path=='/api/health': return self.send_json({'ok':True,'version':'2.4.0','vault':str(vault()),'notes':rebuild()})
+            if u.path=='/api/health': return self.send_json({'ok':True,'version':'2.5.0','vault':str(vault()),'notes':rebuild()})
             if u.path=='/': self.path='/static/index.html'
             return super().do_GET()
         except Exception as e: return self.fail(e)
@@ -263,7 +279,7 @@ def main():
     global CFG
     if args.vault: CFG['vault']=str(Path(args.vault).expanduser().resolve()); save_cfg()
     seed(); rebuild(); os.chdir(ROOT); server=ThreadingHTTPServer((HOST,args.port),Handler); url=f'http://{HOST}:{args.port}'
-    print(f'Portable Notes 2.4.0 running at {url}\nVault: {vault()}\nPress Ctrl+C to stop.')
+    print(f'Portable Notes 2.5.0 running at {url}\nVault: {vault()}\nPress Ctrl+C to stop.')
     if not args.no_browser: threading.Timer(.5,lambda:webbrowser.open(url)).start()
     try:server.serve_forever()
     except KeyboardInterrupt:print('\nStopped.')

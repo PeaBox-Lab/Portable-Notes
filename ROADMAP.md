@@ -10,8 +10,8 @@
 ## 2.4 Search and Knowledge ✅
 - FTS5 search foundation, saved searches, unlinked mentions, and duplicate detection delivered; contextual backlink refinements continue incrementally
 
-## 2.5 Tasks and Projects
-- Global tasks, due dates, recurring tasks, Kanban, calendar, and Markdown-backed project dashboards
+## 2.5 Tasks and Projects ✅
+- Global task aggregation, status filtering, and due-date recognition delivered; recurring tasks, Kanban, calendar, and project dashboards continue incrementally
 
 ## 2.6 Visual Knowledge
 - Local/global graph, filters, canvas, mind maps, and portable canvas export

@@ -1,5 +1,5 @@
 
-# Portable Notes 2.4 User Guide
+# Portable Notes 2.5 User Guide
 
 ## Start
 
@@ -27,3 +27,6 @@ Run `python app.py --vault "PATH"`. The selected absolute path is saved locally 
 
 ## Search and knowledge
 Use the search box for full-text queries. Use the command palette to save the current search, inspect unlinked mentions of the current note title, or detect notes with duplicate normalized content.
+
+## Tasks
+Write tasks as `- [ ] Task`. Optional due dates use `due: YYYY-MM-DD` or `📅 YYYY-MM-DD`. Open Global open tasks from the command palette to aggregate incomplete tasks across notes.

@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.5.0] - 2026-11-05
+### Added
+- Global Markdown task aggregation
+- Open/completed task filters
+- Due-date recognition
+- Global open-task command
+
+### Retained
+- All 2.4 functionality remains available.
+
+
 ## [2.4.0] - 2026-11-05
 ### Added
 - FTS5 search endpoint with fallback search

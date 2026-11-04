@@ -2,7 +2,7 @@
 # Security Policy
 
 ## Supported version
-Version 2.4.x receives security fixes.
+Version 2.5.x receives security fixes.
 
 ## Reporting
 Use GitHub private vulnerability reporting for https://github.com/iwebslogtech/Portable-Notes when enabled. Do not publish an unpatched vulnerability. Include the affected version and reproducible steps.

@@ -10,7 +10,7 @@ A private, local-first Markdown notes and personal knowledge-management applicat
 
 **Repository:** https://github.com/iwebslogtech/Portable-Notes
 
-## What's new in 2.4.0
+## What's new in 2.5.0
 
 - Persistent multi-note tabs and a smoother writing workflow
 - Find and replace with `Ctrl+F`
@@ -74,3 +74,6 @@ MIT, see [LICENSE](LICENSE).
 ## 2.4 search and knowledge
 
 Portable Notes 2.4 adds FTS5-backed search, saved searches, unlinked mentions, and duplicate detection while retaining the existing Markdown-first writing, history, attachment, export, and recovery workflow.
+
+## 2.5 tasks and projects
+Markdown checkboxes are aggregated across the vault. Add `due: YYYY-MM-DD` or `📅 YYYY-MM-DD` to a task to expose its due date. Use the command palette for Global open tasks.
