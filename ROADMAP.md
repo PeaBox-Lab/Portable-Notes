@@ -72,3 +72,6 @@
 
 ## 2.20 Risk Radar ✅
 - Deterministic task risk scoring, severity bands, reasons, and project filtering delivered.
+
+## 2.21 Workload Planning ✅
+- Effort estimates, workload rollups, seven-day demand, unestimated-work tracking, and deterministic load scoring delivered.

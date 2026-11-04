@@ -1,5 +1,5 @@
 
-# Portable Notes 2.20 User Guide
+# Portable Notes 2.21 User Guide
 
 ## Start
 
@@ -75,3 +75,6 @@ After assigning task IDs and dependencies, choose **Critical path**. Portable No
 
 ## Risk radar
 Choose **Risk radar** and optionally a project. Tasks are classified Critical, High, Medium, or Low using overdue status, priority, and dependency signals; the displayed reasons explain each score.
+
+## Workload planning
+Add an effort estimate such as `estimate: 3h` or `est: 1.5h`. Choose **Workload** to review project demand for the next seven days and identify unestimated tasks.

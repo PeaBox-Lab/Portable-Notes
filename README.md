@@ -10,7 +10,7 @@ A private, local-first Markdown notes and personal knowledge-management applicat
 
 **Repository:** https://github.com/iwebslogtech/Portable-Notes
 
-## What's new in 2.20.0
+## What's new in 2.21.0
 
 - Persistent multi-note tabs and a smoother writing workflow
 - Find and replace with `Ctrl+F`
@@ -122,3 +122,6 @@ Use **Critical path** to analyze task-ID dependency chains, identify the deepest
 
 ## 2.20 risk radar
 Use **Risk radar** to prioritize open work by deterministic risk score. Overdue, high-priority, dependency-blocked, and unresolved-dependency tasks receive progressively higher scores.
+
+## 2.21 workload planning
+Add `estimate: 2h` or `est: 2h` to open Markdown tasks. Use **Workload** to compare estimated hours, overdue work, next-seven-day demand, unestimated work, and a deterministic load score by project.
