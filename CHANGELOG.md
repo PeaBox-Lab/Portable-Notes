@@ -1,6 +1,17 @@
 # Changelog
 
-## [2.7.0] - 2026-11-05
+## [2.8.0] - 2026-11-05
+### Added
+- Dated task calendar API
+- Date-range agenda filtering
+- Task calendar command
+- Calendar entries retain project, priority, note, path, and line context
+
+### Retained
+- All v2.7 and earlier functionality.
+
+
+## [2.8.0] - 2026-11-05
 ### Added
 - Task and project dashboard API
 - Vault-wide completion and overdue statistics

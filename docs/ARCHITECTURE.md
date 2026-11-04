@@ -21,3 +21,6 @@ Task metadata is parsed directly from Markdown checkbox lines and remains file-f
 
 ## 2.7 project dashboard
 The dashboard derives aggregate task/project statistics from indexed Markdown note content at request time. Markdown remains the canonical source of truth.
+
+## 2.8 task calendar
+Calendar entries are derived directly from Markdown task due dates. No separate calendar database is introduced, preserving the file-first architecture.

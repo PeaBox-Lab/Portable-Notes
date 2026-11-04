@@ -1,4 +1,4 @@
-# Portable Notes 2.7.0: Project Dashboard
+# Portable Notes 2.8.0: Project Dashboard
 
 A cumulative release adding vault-wide task and project rollups while retaining every v2.6 capability.
 

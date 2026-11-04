@@ -33,3 +33,6 @@
 
 ## 2.7 Project Dashboard ✅
 - Vault-wide task statistics and per-project workload rollups delivered.
+
+## 2.8 Task Calendar ✅
+- Due-date agenda, date-range filtering, and calendar command delivered.

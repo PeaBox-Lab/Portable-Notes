@@ -1,5 +1,5 @@
 
-# Portable Notes 2.7 User Guide
+# Portable Notes 2.8 User Guide
 
 ## Start
 
@@ -36,3 +36,6 @@ Examples: `- [ ] Ship release due: 2026-11-10 priority: high project: PortableNo
 
 ## Project dashboard
 Open the command palette and choose **Task & project dashboard**. Tasks using `project: Name` or `#project/Name` are grouped by project; tasks without project metadata appear as Unassigned.
+
+## Task calendar
+Tasks containing `due: YYYY-MM-DD` or `📅 YYYY-MM-DD` automatically appear in the Task calendar. The API supports `start` and `end` date parameters for bounded agenda views.
