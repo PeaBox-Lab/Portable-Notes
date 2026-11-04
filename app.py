@@ -24,7 +24,7 @@ def norm_rel(value):
     return value
 
 def load_cfg():
-    default={'vault':str(DEFAULT_VAULT),'theme':'system','version':'2.1.0'}
+    default={'vault':str(DEFAULT_VAULT),'theme':'system','version':'2.2.0'}
     if CONFIG.exists():
         try: default.update(json.loads(CONFIG.read_text(encoding='utf-8')))
         except Exception: pass
@@ -111,7 +111,23 @@ def seed():
     p=vault()/'Getting Started'/'Welcome.md'
     if not any(vault().rglob('*.md')):
         p.parent.mkdir(parents=True,exist_ok=True); t=iso(); p.write_text(front({'id':note_id('Getting Started/Welcome.md'),'title':'Welcome to Portable Notes','created':t,'updated':t,'tags':['welcome','guide'],'favorite':True,'pinned':True},"""# Welcome\n\nPortable Notes 2.1 uses **Markdown files as the source of truth**.\n\n## Try it\n\n- Create a note with **Ctrl+N**\n- Link notes with [[Roadmap]]\n- Add tags in the properties bar\n- Use **Ctrl+Shift+P** for the command palette\n- Export a portable ZIP backup\n\n- [ ] Create your first note\n"""),encoding='utf-8')
-        tp=vault()/'Templates'/'Meeting.md'; tp.write_text('# {{title}}\n\n**Date:** {{date}}\n\n## Attendees\n\n## Agenda\n\n## Notes\n\n## Actions\n\n- [ ]\n',encoding='utf-8')
+        tp=vault()/'Templates'/'Meeting.md'; tp.parent.mkdir(parents=True,exist_ok=True); tp.write_text('# {{title}}\n\n**Date:** {{date}}\n\n## Attendees\n\n## Agenda\n\n## Notes\n\n## Actions\n\n- [ ]\n',encoding='utf-8')
+
+def history_dir():
+    p=vault()/'.portable-notes'/'history'; p.mkdir(parents=True,exist_ok=True); return p
+
+def snapshot(rel, text):
+    stamp=datetime.now().strftime('%Y%m%d-%H%M%S-%f')
+    target=history_dir()/hashlib.sha1(rel.encode()).hexdigest()[:12]
+    target.mkdir(parents=True,exist_ok=True)
+    (target/(stamp+'.md')).write_text(text,encoding='utf-8')
+    snaps=sorted(target.glob('*.md'),reverse=True)
+    for old in snaps[20:]: old.unlink(missing_ok=True)
+
+def note_history(rel):
+    target=history_dir()/hashlib.sha1(rel.encode()).hexdigest()[:12]
+    if not target.exists(): return []
+    return [{'id':p.stem,'modified':datetime.fromtimestamp(p.stat().st_mtime).isoformat()} for p in sorted(target.glob('*.md'),reverse=True)]
 
 def read_body(req):
     n=int(req.headers.get('Content-Length','0')); return json.loads(req.rfile.read(n) or b'{}')
@@ -145,14 +161,20 @@ class Handler(SimpleHTTPRequestHandler):
                 title=q.get('title',[''])[0]
                 with sqlite3.connect(DB) as db: db.row_factory=sqlite3.Row; rows=db.execute('SELECT * FROM notes').fetchall()
                 return self.send_json([serialize(r) for r in rows if title in json.loads(r['links'] or '[]')])
+            if u.path=='/api/history':
+                rel=norm_rel(q.get('path',[''])[0]); return self.send_json(note_history(rel))
+            if u.path=='/api/history/item':
+                rel=norm_rel(q.get('path',[''])[0]); hid=safe_name(q.get('id',[''])[0]); hp=history_dir()/hashlib.sha1(rel.encode()).hexdigest()[:12]/(hid+'.md')
+                if not hp.exists(): return self.fail('History item not found',404)
+                return self.send_json({'id':hid,'content':hp.read_text(encoding='utf-8',errors='replace')})
             if u.path=='/api/export':
                 mem=io.BytesIO()
                 with zipfile.ZipFile(mem,'w',zipfile.ZIP_DEFLATED) as z:
                     for p in vault().rglob('*'):
                         if p.is_file() and '.portable-notes' not in p.parts: z.write(p,p.relative_to(vault()))
-                    z.writestr('portable-notes-backup.json',json.dumps({'version':'2.1.0','created':iso(),'vault':str(vault())},indent=2))
+                    z.writestr('portable-notes-backup.json',json.dumps({'version':'2.2.0','created':iso(),'vault':str(vault())},indent=2))
                 raw=mem.getvalue(); self.send_response(200); self.send_header('Content-Type','application/zip'); self.send_header('Content-Disposition','attachment; filename="portable-notes-vault-backup.zip"'); self.send_header('Content-Length',str(len(raw))); self.end_headers(); return self.wfile.write(raw)
-            if u.path=='/api/health': return self.send_json({'ok':True,'version':'2.1.0','vault':str(vault()),'notes':rebuild()})
+            if u.path=='/api/health': return self.send_json({'ok':True,'version':'2.2.0','vault':str(vault()),'notes':rebuild()})
             if u.path=='/': self.path='/static/index.html'
             return super().do_GET()
         except Exception as e: return self.fail(e)
@@ -174,7 +196,7 @@ class Handler(SimpleHTTPRequestHandler):
             if self.path!='/api/note': return self.fail('Not found',404)
             b=read_body(self); old=md_path(b['path'])
             if not old.exists(): return self.fail('Note not found',404)
-            old_meta,old_body=parse_front(old.read_text(encoding='utf-8',errors='replace')); title=safe_name(b.get('title',old_meta.get('title',old.stem))); folder=norm_rel(b.get('folder',old.parent.relative_to(vault()).as_posix())); dest_dir=md_path(folder) if folder else vault(); dest_dir.mkdir(parents=True,exist_ok=True)
+            old_text=old.read_text(encoding='utf-8',errors='replace'); snapshot(b['path'],old_text); old_meta,old_body=parse_front(old_text); title=safe_name(b.get('title',old_meta.get('title',old.stem))); folder=norm_rel(b.get('folder',old.parent.relative_to(vault()).as_posix())); dest_dir=md_path(folder) if folder else vault(); dest_dir.mkdir(parents=True,exist_ok=True)
             desired=dest_dir/(title+'.md')
             if desired!=old and desired.exists(): return self.fail('A note with this name already exists',409)
             old_title=str(old_meta.get('title',old.stem)); new_meta={**old_meta,'title':title,'updated':iso(),'tags':b.get('tags',old_meta.get('tags',[])),'favorite':b.get('favorite',boolv(old_meta.get('favorite'))),'pinned':b.get('pinned',boolv(old_meta.get('pinned'))),'id':old_meta.get('id') or note_id(b['path'])}
@@ -203,7 +225,7 @@ def main():
     global CFG
     if args.vault: CFG['vault']=str(Path(args.vault).expanduser().resolve()); save_cfg()
     seed(); rebuild(); os.chdir(ROOT); server=ThreadingHTTPServer((HOST,args.port),Handler); url=f'http://{HOST}:{args.port}'
-    print(f'Portable Notes 2.1.0 running at {url}\nVault: {vault()}\nPress Ctrl+C to stop.')
+    print(f'Portable Notes 2.2.0 running at {url}\nVault: {vault()}\nPress Ctrl+C to stop.')
     if not args.no_browser: threading.Timer(.5,lambda:webbrowser.open(url)).start()
     try:server.serve_forever()
     except KeyboardInterrupt:print('\nStopped.')

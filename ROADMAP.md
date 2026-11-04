@@ -1,7 +1,7 @@
 # Roadmap
 
-## 2.2 Writing Experience
-- Multi-tab editing, draft recovery, find and replace, custom templates, interactive checklists, and code highlighting
+## 2.2 Writing Experience ✅
+- Multi-note tabs, find/replace, and note history delivered. Further template/editor refinements continue incrementally
 
 ## 2.3 Attachments
 - Drag-and-drop files, pasted images, previews, safe attachment handling, and orphan detection

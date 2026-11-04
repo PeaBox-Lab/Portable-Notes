@@ -9,9 +9,12 @@ A private, local-first Markdown notes and personal knowledge-management applicat
 
 **Repository:** https://github.com/iwebslogtech/Portable-Notes
 
-## What's new in 2.1.0
+## What's new in 2.2.0
 
-- Markdown files are now the source of truth
+- Persistent multi-note tabs and a smoother writing workflow
+- Find and replace with `Ctrl+F`
+- Automatic note-history snapshots with restore
+- Markdown files remain the source of truth
 - Select a custom vault with `python app.py --vault PATH`
 - Nested folders and file-tree navigation
 - YAML front matter for stable metadata
@@ -66,3 +69,7 @@ Back up the `vault/` directory or use the Export button. You can open the same n
 ## License
 
 MIT, see [LICENSE](LICENSE).
+
+## 2.2 writing workflow
+
+Portable Notes now keeps recently opened notes as tabs, snapshots prior note content before saves, and exposes Find/Replace and History through the command palette. All 2.1 features remain available.

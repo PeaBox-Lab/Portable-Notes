@@ -1,19 +1,19 @@
 # Changelog
 
-## [2.1.0] - 2026-11-05
+## [2.2.0] - 2026-11-05
 
 ### Added
-- Markdown vault as the authoritative data store
-- Nested file tree, custom vault paths, daily notes, templates, and command palette
-- YAML-compatible metadata, external-change detection, backlinks, and disposable SQLite index
-- Rename-safe wiki-link maintenance, recoverable trash, and complete vault ZIP export
-- Architecture, migration, user-guide, release, security, and GitHub community documentation
+- Multi-note tab strip with persistent recent tabs
+- Find and replace with `Ctrl+F`
+- Automatic local note history snapshots, retaining the latest 20 revisions per note
+- History restore command from the command palette
 
-### Changed
-- Product branding and repository links now consistently target `iwebslogtech/Portable-Notes`
-- Search index can be rebuilt entirely from Markdown files
-- Browser interface refined for desktop and responsive use
+### Retained
+- Markdown vault source of truth, nested folders, wiki links/backlinks, tags, favorites, pinning, daily notes, templates, autosave, external-change detection, rename-safe links, SQLite index, recoverable trash, ZIP export, command palette, preview modes, themes, and localhost-only operation from 2.1.0
+- Original Markdown-note interoperability and lightweight workflow from the 2.0 lineage
 
 ### Security
-- Server remains restricted to `127.0.0.1`
-- Path traversal is rejected for vault operations
+- Server remains bound to `127.0.0.1` and vault traversal protection remains enabled.
+
+## [2.1.0] - 2026-11-05
+- Markdown Vault Foundation.
