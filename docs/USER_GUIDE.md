@@ -1,5 +1,5 @@
 
-# Portable Notes 2.23 User Guide
+# Portable Notes 2.24 User Guide
 
 ## Start
 
@@ -84,3 +84,6 @@ Choose **Capacity**, provide weekly available hours, and optionally a project. P
 
 ## Burndown planning
 Choose **Burndown**, optionally provide a project, and choose a horizon from 1 to 90 days. The view compares ideal remaining effort with work implied by task due dates.
+
+## Delivery forecast
+Choose **Delivery forecast**, provide weekly capacity, and optionally a project. The forecast reports remaining effort, estimated weeks, projected finish date, latest due date, and schedule status.

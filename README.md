@@ -10,7 +10,7 @@ A private, local-first Markdown notes and personal knowledge-management applicat
 
 **Repository:** https://github.com/iwebslogtech/Portable-Notes
 
-## What's new in 2.23.0
+## What's new in 2.24.0
 
 - Persistent multi-note tabs and a smoother writing workflow
 - Find and replace with `Ctrl+F`
@@ -131,3 +131,6 @@ Use **Capacity** to compare the next seven days of estimated Markdown work with 
 
 ## 2.23 burndown planning
 Use **Burndown** to compare an ideal effort trajectory with scheduled remaining Markdown work across a configurable 1-90 day horizon. Unestimated open tasks count as 1 hour so they remain visible.
+
+## 2.24 delivery forecast
+Use **Delivery forecast** to estimate project duration from remaining Markdown effort and weekly capacity. Portable Notes compares the capacity-derived finish date with the latest task due date and flags projects as On Track or At Risk. Unestimated tasks use the existing 1-hour visibility default.

@@ -69,3 +69,6 @@ Capacity metrics are request-time projections from Markdown due dates and effort
 
 ## 2.23 burndown planning
 Burndown points are derived on demand from open Markdown tasks, due dates, and estimates. Unestimated tasks use a documented 1-hour visibility default rather than being silently ignored.
+
+## 2.24 delivery forecast
+Forecasts are deterministic request-time projections from open Markdown task estimates and weekly capacity. They do not use statistical prediction and remain fully explainable.

@@ -81,3 +81,6 @@
 
 ## 2.23 Burndown Planning ✅
 - Configurable burndown horizon, ideal trajectory, scheduled trajectory, project filtering, and unestimated-work visibility delivered.
+
+## 2.24 Delivery Forecast ✅
+- Capacity-based remaining-effort forecast, projected finish date, due-date comparison, and schedule-risk status delivered.
