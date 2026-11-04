@@ -1,5 +1,5 @@
 
-# Portable Notes 2.6 User Guide
+# Portable Notes 2.7 User Guide
 
 ## Start
 
@@ -33,3 +33,6 @@ Write tasks as `- [ ] Task`. Optional due dates use `due: YYYY-MM-DD` or `📅 Y
 
 ## Task intelligence
 Examples: `- [ ] Ship release due: 2026-11-10 priority: high project: PortableNotes` and `- [ ] Review docs 📅 2026-11-08 !medium #project/Docs`. Past due incomplete tasks are flagged as overdue in the task API and dedicated command-palette view.
+
+## Project dashboard
+Open the command palette and choose **Task & project dashboard**. Tasks using `project: Name` or `#project/Name` are grouped by project; tasks without project metadata appear as Unassigned.

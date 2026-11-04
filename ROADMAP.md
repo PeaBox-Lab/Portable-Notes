@@ -30,3 +30,6 @@
 
 ## 2.6 Task Intelligence ✅
 - Priority metadata, project metadata, overdue detection, filtering, sorting, and focused task commands delivered.
+
+## 2.7 Project Dashboard ✅
+- Vault-wide task statistics and per-project workload rollups delivered.

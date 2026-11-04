@@ -18,3 +18,6 @@ The disposable SQLite index exposes FTS5-backed search when available. Mention a
 
 ## 2.6 task intelligence
 Task metadata is parsed directly from Markdown checkbox lines and remains file-first. Priority, project, due-date and overdue fields are derived at request time rather than stored as a second source of truth.
+
+## 2.7 project dashboard
+The dashboard derives aggregate task/project statistics from indexed Markdown note content at request time. Markdown remains the canonical source of truth.

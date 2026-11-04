@@ -1,6 +1,6 @@
 
 #!/usr/bin/env python3
-# Portable Notes 2.6.0: local-first Markdown vault with task intelligence.
+# Portable Notes 2.7.0: local-first Markdown vault with task intelligence.
 from __future__ import annotations
 import argparse, hashlib, html, io, json, mimetypes, os, re, shutil, sqlite3, threading, time, webbrowser, zipfile
 from datetime import datetime, timezone
@@ -25,7 +25,7 @@ def norm_rel(value):
     return value
 
 def load_cfg():
-    default={'vault':str(DEFAULT_VAULT),'theme':'system','version':'2.6.0'}
+    default={'vault':str(DEFAULT_VAULT),'theme':'system','version':'2.7.0'}
     if CONFIG.exists():
         try: default.update(json.loads(CONFIG.read_text(encoding='utf-8')))
         except Exception: pass
@@ -186,7 +186,7 @@ class Handler(SimpleHTTPRequestHandler):
                         text=m.group(2).strip(); due=None
                         dm=re.search(r'(?:📅|due:)\s*(\d{4}-\d{2}-\d{2})',text,re.I)
                         if dm: due=dm.group(1)
-                        pm=re.search(r'(?:priority:|!)(high|medium|low)\b',text,re.I); priority=pm.group(1).lower() if pm else 'normal'
+                        pm=re.search(r'(?:priority:\s*|!)(high|medium|low)\b',text,re.I); priority=pm.group(1).lower() if pm else 'normal'
                         jm=re.search(r'(?:project:\s*|#project/)([A-Za-z0-9._-]+)',text,re.I); project=jm.group(1) if jm else ''
                         today=datetime.now().date().isoformat(); done=m.group(1).lower()=='x'
                         tasks.append({'path':d['path'],'note':d['title'],'line':line_no,'text':text,'done':done,'due':due,'priority':priority,'project':project,'overdue':bool(due and due<today and not done)})
@@ -197,6 +197,27 @@ class Handler(SimpleHTTPRequestHandler):
                 if priority: tasks=[x for x in tasks if x['priority']==priority.lower()]
                 weight={'high':0,'medium':1,'normal':2,'low':3}; tasks.sort(key=lambda x:(x['done'], not x['overdue'], x['due'] or '9999-12-31',weight.get(x['priority'],2),x['note'].lower()))
                 return self.send_json(tasks)
+            if u.path=='/api/task-dashboard':
+                refresh(); tasks=[]
+                with sqlite3.connect(DB) as db: db.row_factory=sqlite3.Row; rows=db.execute('SELECT * FROM notes').fetchall()
+                for r in rows:
+                    d=serialize(r)
+                    for line_no,line in enumerate(d['content'].splitlines(),1):
+                        m=re.match(r'^\s*- \[( |x|X)\]\s+(.+)$',line)
+                        if not m: continue
+                        text=m.group(2).strip(); done=m.group(1).lower()=='x'
+                        dm=re.search(r'(?:📅|due:)\s*(\d{4}-\d{2}-\d{2})',text,re.I); due=dm.group(1) if dm else None
+                        pm=re.search(r'(?:priority:\s*|!)(high|medium|low)\b',text,re.I); priority=pm.group(1).lower() if pm else 'normal'
+                        jm=re.search(r'(?:project:\s*|#project/)([A-Za-z0-9._-]+)',text,re.I); project=jm.group(1) if jm else 'Unassigned'
+                        tasks.append({'done':done,'due':due,'priority':priority,'project':project})
+                today=datetime.now().date().isoformat(); projects={}
+                for t in tasks:
+                    x=projects.setdefault(t['project'],{'project':t['project'],'total':0,'open':0,'done':0,'overdue':0,'high':0})
+                    x['total']+=1; x['done' if t['done'] else 'open']+=1
+                    if not t['done'] and t['due'] and t['due']<today:x['overdue']+=1
+                    if not t['done'] and t['priority']=='high':x['high']+=1
+                summary={'total':len(tasks),'open':sum(not x['done'] for x in tasks),'done':sum(x['done'] for x in tasks),'overdue':sum(bool(not x['done'] and x['due'] and x['due']<today) for x in tasks),'projects':sorted(projects.values(),key=lambda x:(-x['open'],x['project'].lower()))}
+                return self.send_json(summary)
             if u.path=='/api/note':
                 rel=norm_rel(q.get('path',[''])[0]); p=md_path(rel)
                 if not p.exists(): return self.fail('Note not found',404)
@@ -222,13 +243,13 @@ class Handler(SimpleHTTPRequestHandler):
                 with zipfile.ZipFile(mem,'w',zipfile.ZIP_DEFLATED) as z:
                     for p in vault().rglob('*'):
                         if p.is_file() and '.portable-notes' not in p.parts: z.write(p,p.relative_to(vault()))
-                    z.writestr('portable-notes-backup.json',json.dumps({'version':'2.6.0','created':iso(),'vault':str(vault())},indent=2))
+                    z.writestr('portable-notes-backup.json',json.dumps({'version':'2.7.0','created':iso(),'vault':str(vault())},indent=2))
                 raw=mem.getvalue(); self.send_response(200); self.send_header('Content-Type','application/zip'); self.send_header('Content-Disposition','attachment; filename="portable-notes-vault-backup.zip"'); self.send_header('Content-Length',str(len(raw))); self.end_headers(); return self.wfile.write(raw)
             if u.path=='/api/attachment':
                 rel=norm_rel(q.get('path',[''])[0]); p=md_path(rel)
                 if not p.exists() or p.is_dir(): return self.fail('Attachment not found',404)
                 raw=p.read_bytes(); self.send_response(200); self.send_header('Content-Type',mimetypes.guess_type(p.name)[0] or 'application/octet-stream'); self.send_header('Content-Length',str(len(raw))); self.end_headers(); return self.wfile.write(raw)
-            if u.path=='/api/health': return self.send_json({'ok':True,'version':'2.6.0','vault':str(vault()),'notes':rebuild()})
+            if u.path=='/api/health': return self.send_json({'ok':True,'version':'2.7.0','vault':str(vault()),'notes':rebuild()})
             if u.path=='/': self.path='/static/index.html'
             return super().do_GET()
         except Exception as e: return self.fail(e)
@@ -285,7 +306,7 @@ def main():
     global CFG
     if args.vault: CFG['vault']=str(Path(args.vault).expanduser().resolve()); save_cfg()
     seed(); rebuild(); os.chdir(ROOT); server=ThreadingHTTPServer((HOST,args.port),Handler); url=f'http://{HOST}:{args.port}'
-    print(f'Portable Notes 2.6.0 running at {url}\nVault: {vault()}\nPress Ctrl+C to stop.')
+    print(f'Portable Notes 2.7.0 running at {url}\nVault: {vault()}\nPress Ctrl+C to stop.')
     if not args.no_browser: threading.Timer(.5,lambda:webbrowser.open(url)).start()
     try:server.serve_forever()
     except KeyboardInterrupt:print('\nStopped.')

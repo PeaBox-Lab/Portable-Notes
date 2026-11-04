@@ -10,7 +10,7 @@ A private, local-first Markdown notes and personal knowledge-management applicat
 
 **Repository:** https://github.com/iwebslogtech/Portable-Notes
 
-## What's new in 2.6.0
+## What's new in 2.7.0
 
 - Persistent multi-note tabs and a smoother writing workflow
 - Find and replace with `Ctrl+F`
@@ -80,3 +80,6 @@ Markdown checkboxes are aggregated across the vault. Add `due: YYYY-MM-DD` or `ð
 
 ## 2.6 task intelligence
 Enhance Markdown tasks with `priority: high`, `!high`, `project: Alpha`, or `#project/Alpha`. Portable Notes marks incomplete past-due tasks as overdue and exposes Overdue tasks and High-priority tasks in the command palette.
+
+## 2.7 project dashboard
+Use **Task & project dashboard** from the command palette for vault-wide totals and per-project open, completed, overdue, and high-priority counts. Metrics are derived from Markdown tasks without creating a competing task database.

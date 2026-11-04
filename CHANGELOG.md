@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.7.0] - 2026-11-05
+### Added
+- Task and project dashboard API
+- Vault-wide completion and overdue statistics
+- Per-project workload rollups
+- Dashboard command-palette action
+
+### Retained
+- All v2.6 and earlier functionality.
+
+
 ## [2.6.0] - 2026-11-05
 ### Added
 - Task priority and project metadata
