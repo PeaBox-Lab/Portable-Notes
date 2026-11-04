@@ -1,5 +1,5 @@
 
-# Portable Notes 2.21 User Guide
+# Portable Notes 2.22 User Guide
 
 ## Start
 
@@ -78,3 +78,6 @@ Choose **Risk radar** and optionally a project. Tasks are classified Critical, H
 
 ## Workload planning
 Add an effort estimate such as `estimate: 3h` or `est: 1.5h`. Choose **Workload** to review project demand for the next seven days and identify unestimated tasks.
+
+## Capacity planning
+Choose **Capacity**, provide weekly available hours, and optionally a project. Portable Notes compares estimated work due within seven days against that capacity and reports utilization, remaining hours, overdue work, and unestimated tasks.

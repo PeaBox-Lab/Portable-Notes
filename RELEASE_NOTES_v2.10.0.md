@@ -1,4 +1,4 @@
-# Portable Notes 2.21.0: Focus View
+# Portable Notes 2.22.0: Focus View
 
 A cumulative release adding a prioritized short-horizon work view while retaining all earlier capabilities.
 

@@ -75,3 +75,6 @@
 
 ## 2.21 Workload Planning ✅
 - Effort estimates, workload rollups, seven-day demand, unestimated-work tracking, and deterministic load scoring delivered.
+
+## 2.22 Capacity Planning ✅
+- Configurable capacity, seven-day utilization, remaining hours, load-status thresholds, and unestimated-work visibility delivered.

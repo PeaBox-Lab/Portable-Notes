@@ -10,7 +10,7 @@ A private, local-first Markdown notes and personal knowledge-management applicat
 
 **Repository:** https://github.com/iwebslogtech/Portable-Notes
 
-## What's new in 2.21.0
+## What's new in 2.22.0
 
 - Persistent multi-note tabs and a smoother writing workflow
 - Find and replace with `Ctrl+F`
@@ -125,3 +125,6 @@ Use **Risk radar** to prioritize open work by deterministic risk score. Overdue,
 
 ## 2.21 workload planning
 Add `estimate: 2h` or `est: 2h` to open Markdown tasks. Use **Workload** to compare estimated hours, overdue work, next-seven-day demand, unestimated work, and a deterministic load score by project.
+
+## 2.22 capacity planning
+Use **Capacity** to compare the next seven days of estimated Markdown work with a configurable weekly capacity. Projects are classified Available below 80%, Tight from 80%-100%, and Overloaded above 100%.

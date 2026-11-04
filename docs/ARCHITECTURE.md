@@ -63,3 +63,6 @@ Risk is deterministic and derived at request time from Markdown metadata. No opa
 
 ## 2.21 workload planning
 Effort and load metrics are calculated on demand from Markdown task metadata. The load score is deterministic: estimated hours + 4 per overdue task + 2 per task due within seven days + 1 per unestimated task.
+
+## 2.22 capacity planning
+Capacity metrics are request-time projections from Markdown due dates and effort estimates. Status thresholds are deterministic: Available under 80%, Tight at 80%-100%, Overloaded above 100%.
