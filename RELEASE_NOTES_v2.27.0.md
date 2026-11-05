@@ -1,4 +1,4 @@
-# Portable Notes 2.27.0: Baseline Health
+# Portable Notes 2.28.0: Baseline Health
 
 This cumulative release adds project baseline-governance health while retaining every earlier capability.
 

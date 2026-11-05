@@ -1,4 +1,4 @@
-# Portable Notes 2.27.0: Burndown Planning
+# Portable Notes 2.28.0: Burndown Planning
 
 This cumulative release adds project burndown forecasting while preserving all prior capabilities.
 

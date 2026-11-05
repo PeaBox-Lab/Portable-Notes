@@ -1,4 +1,4 @@
-# Portable Notes 2.27.0: Schedule Slippage
+# Portable Notes 2.28.0: Schedule Slippage
 
 This cumulative release adds baseline-vs-current due-date tracking while retaining all earlier functionality.
 

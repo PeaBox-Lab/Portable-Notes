@@ -81,3 +81,6 @@ Schedule variance is computed from baseline and current due-date metadata in Mar
 
 ## 2.27 baseline health
 Health is derived from Markdown baseline/due dates and task status. Red means any overdue work or average slip above 3 days; Amber means untracked work or positive average slip; otherwise Green.
+
+## 2.28 metadata quality
+Quality scoring is deterministic. Each detected metadata issue subtracts 20 points from a task starting at 100, with a floor of zero. Project quality is the mean task score.

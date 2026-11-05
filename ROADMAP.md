@@ -93,3 +93,6 @@
 
 ## 2.27 Baseline Health ✅
 - Baseline coverage, tracked/untracked metrics, average slippage, and deterministic project health classification delivered.
+
+## 2.28 Metadata Quality ✅
+- Task metadata scoring, duplicate-ID detection, unresolved dependency diagnostics, and project quality rollups delivered.

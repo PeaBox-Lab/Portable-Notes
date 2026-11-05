@@ -1,4 +1,4 @@
-# Portable Notes 2.27.0: Delivery Forecast
+# Portable Notes 2.28.0: Delivery Forecast
 
 This cumulative release adds capacity-based project delivery forecasting while retaining all prior capabilities.
 

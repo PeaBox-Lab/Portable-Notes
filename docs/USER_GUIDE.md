@@ -1,5 +1,5 @@
 
-# Portable Notes 2.27 User Guide
+# Portable Notes 2.28 User Guide
 
 ## Start
 
@@ -96,3 +96,6 @@ Add a baseline date such as `baseline: 2026-11-10` to a dated task. When the cur
 
 ## Baseline health
 Choose **Baseline health** to see baseline coverage, slipped/ahead/on-baseline counts, average slippage and a deterministic Green/Amber/Red status for each project.
+
+## Metadata quality
+Choose **Metadata quality** to identify incomplete task metadata. Open tasks are checked for task ID, due date, baseline and estimate; task IDs are checked for duplicates, and dependency references are checked for unresolved IDs.

@@ -1,4 +1,4 @@
-# Portable Notes 2.27.0: Task Calendar
+# Portable Notes 2.28.0: Task Calendar
 
 This cumulative release adds a calendar/agenda layer to Markdown tasks while retaining v2.7 and earlier features.
 

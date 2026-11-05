@@ -10,7 +10,7 @@ A private, local-first Markdown notes and personal knowledge-management applicat
 
 **Repository:** https://github.com/iwebslogtech/Portable-Notes
 
-## What's new in 2.27.0
+## What's new in 2.28.0
 
 - Persistent multi-note tabs and a smoother writing workflow
 - Find and replace with `Ctrl+F`
@@ -143,3 +143,6 @@ Add `baseline: YYYY-MM-DD` (or `base:`) alongside a task due date. **Schedule sl
 
 ## 2.27 baseline health
 Use **Baseline health** to measure how completely project tasks are baselined and whether the schedule is moving. Green means no overdue work and no positive average slip; Amber indicates untracked tasks or positive average slip up to three days; Red indicates overdue work or average slip above three days.
+
+## 2.28 metadata quality
+Use **Metadata quality** to audit task IDs, due dates, baselines, estimates, duplicate IDs, and dependency references. Each task receives a deterministic 0-100 quality score, with project-level quality rollups.
