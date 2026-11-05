@@ -1,5 +1,22 @@
 # Changelog
 
+## [2.30.0] - 2026-11-05
+### Architecture
+- Added canonical immutable Task model and parser.
+- Centralized task metadata syntax.
+- Added core, services, and API package boundaries.
+- Added reusable TaskRepository and typed application errors.
+
+### Reliability
+- Expanded automated tests from 3 to 19.
+- Added parser, repository, security, alias, default, dependency, and serialization coverage.
+- Restored v2.3.0 release-note continuity.
+- Rewrote architecture documentation to be version-neutral.
+
+### Retained
+- Existing v2.29 features, routes, Markdown compatibility, and standard-library portability.
+
+
 ## [2.29.0] - 2026-11-05
 ### Added
 - Execution Readiness API and command

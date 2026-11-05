@@ -99,3 +99,6 @@
 
 ## 2.29 Execution Readiness ✅
 - Deterministic readiness scores, actionable blocker explanations, task states, project rollups, and filtering delivered.
+
+## 2.30 Architecture and Reliability ✅
+- Canonical task model/parser, shared syntax, package boundaries, repository layer, typed errors, expanded tests, and documentation continuity delivered.

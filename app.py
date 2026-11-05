@@ -1,12 +1,14 @@
 
 #!/usr/bin/env python3
-# Portable Notes 2.29.0: local-first Markdown vault with task intelligence.
+# Portable Notes 2.30.0: architecture and reliability release.
 from __future__ import annotations
 import argparse, hashlib, html, io, json, mimetypes, os, re, shutil, sqlite3, threading, time, webbrowser, zipfile
 from datetime import datetime, timedelta, timezone
 from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
 from urllib.parse import parse_qs, quote, unquote, urlparse
+from core.tasks import (TASK_LINE_RE,DUE_RE,BASELINE_RE,PROJECT_RE,PRIORITY_RE,ESTIMATE_RE,TASK_ID_RE,DEPENDENCY_RE,MILESTONE_RE,parse_task_line,parse_tasks)
+from core.errors import AppError, ValidationError, NotFoundError
 
 ROOT=Path(__file__).resolve().parent
 STATIC=ROOT/'static'; DATA=ROOT/'data'; DEFAULT_VAULT=ROOT/'vault'; CONFIG=DATA/'config.json'; DB=DATA/'index.db'
@@ -19,13 +21,14 @@ def safe_name(value, fallback='Untitled'):
     value=re.sub(r'[<>:"/\|?*\x00-\x1f]','',str(value)).strip().rstrip('.')
     return (value[:120] or fallback)
 def norm_rel(value):
-    value=unquote(str(value or '')).replace('\\','/').strip('/')
-    p=Path(value)
+    raw=unquote(str(value or '')).replace('\\','/')
+    if raw.startswith('/') or re.match(r'^[A-Za-z]:/',raw): raise ValueError('Invalid path')
+    value=raw.strip('/'); p=Path(value)
     if value.startswith('.') or '..' in p.parts: raise ValueError('Invalid path')
     return value
 
 def load_cfg():
-    default={'vault':str(DEFAULT_VAULT),'theme':'system','version':'2.29.0'}
+    default={'vault':str(DEFAULT_VAULT),'theme':'system','version':'2.30.0'}
     if CONFIG.exists():
         try: default.update(json.loads(CONFIG.read_text(encoding='utf-8')))
         except Exception: pass
@@ -181,13 +184,13 @@ class Handler(SimpleHTTPRequestHandler):
                 for r in rows:
                     d=serialize(r)
                     for line_no,line in enumerate(d['content'].splitlines(),1):
-                        m=re.match(r'^\s*- \[( |x|X)\]\s+(.+)$',line)
+                        m=TASK_LINE_RE.match(line)
                         if not m: continue
                         text=m.group(2).strip(); due=None
-                        dm=re.search(r'(?:📅|due:)\s*(\d{4}-\d{2}-\d{2})',text,re.I)
+                        dm=DUE_RE.search(text)
                         if dm: due=dm.group(1)
-                        pm=re.search(r'(?:priority:\s*|!)(high|medium|low)\b',text,re.I); priority=pm.group(1).lower() if pm else 'normal'
-                        jm=re.search(r'(?:project:\s*|#project/)([A-Za-z0-9._-]+)',text,re.I); project=jm.group(1) if jm else ''
+                        pm=PRIORITY_RE.search(text); priority=pm.group(1).lower() if pm else 'normal'
+                        jm=PROJECT_RE.search(text); project=jm.group(1) if jm else ''
                         today=datetime.now().date().isoformat(); done=m.group(1).lower()=='x'
                         tasks.append({'path':d['path'],'note':d['title'],'line':line_no,'text':text,'done':done,'due':due,'priority':priority,'project':project,'overdue':bool(due and due<today and not done)})
                 status=q.get('status',['all'])[0]; project=q.get('project',[''])[0]; priority=q.get('priority',[''])[0]
@@ -203,12 +206,12 @@ class Handler(SimpleHTTPRequestHandler):
                 for r in rows:
                     d=serialize(r)
                     for line_no,line in enumerate(d['content'].splitlines(),1):
-                        m=re.match(r'^\s*- \[( |x|X)\]\s+(.+)$',line)
+                        m=TASK_LINE_RE.match(line)
                         if not m: continue
                         text=m.group(2).strip(); done=m.group(1).lower()=='x'
-                        dm=re.search(r'(?:📅|due:)\s*(\d{4}-\d{2}-\d{2})',text,re.I); due=dm.group(1) if dm else None
-                        pm=re.search(r'(?:priority:\s*|!)(high|medium|low)\b',text,re.I); priority=pm.group(1).lower() if pm else 'normal'
-                        jm=re.search(r'(?:project:\s*|#project/)([A-Za-z0-9._-]+)',text,re.I); project=jm.group(1) if jm else 'Unassigned'
+                        dm=DUE_RE.search(text); due=dm.group(1) if dm else None
+                        pm=PRIORITY_RE.search(text); priority=pm.group(1).lower() if pm else 'normal'
+                        jm=PROJECT_RE.search(text); project=jm.group(1) if jm else 'Unassigned'
                         tasks.append({'done':done,'due':due,'priority':priority,'project':project})
                 today=datetime.now().date().isoformat(); projects={}
                 for t in tasks:
@@ -224,15 +227,15 @@ class Handler(SimpleHTTPRequestHandler):
                 for r in rows:
                     d=serialize(r)
                     for line_no,line in enumerate(d['content'].splitlines(),1):
-                        m=re.match(r'^\s*- \[( |x|X)\]\s+(.+)$',line)
+                        m=TASK_LINE_RE.match(line)
                         if not m: continue
-                        text=m.group(2).strip(); dm=re.search(r'(?:📅|due:)\s*(\d{4}-\d{2}-\d{2})',text,re.I)
+                        text=m.group(2).strip(); dm=DUE_RE.search(text)
                         if not dm: continue
                         due=dm.group(1)
                         if start and due<start: continue
                         if end and due>end: continue
-                        pm=re.search(r'(?:priority:\s*|!)(high|medium|low)\b',text,re.I); priority=pm.group(1).lower() if pm else 'normal'
-                        jm=re.search(r'(?:project:\s*|#project/)([A-Za-z0-9._-]+)',text,re.I); project=jm.group(1) if jm else 'Unassigned'
+                        pm=PRIORITY_RE.search(text); priority=pm.group(1).lower() if pm else 'normal'
+                        jm=PROJECT_RE.search(text); project=jm.group(1) if jm else 'Unassigned'
                         items.append({'due':due,'done':m.group(1).lower()=='x','priority':priority,'project':project,'text':text,'note':d['title'],'path':d['path'],'line':line_no})
                 weight={'high':0,'medium':1,'normal':2,'low':3}; items.sort(key=lambda x:(x['due'],x['done'],weight.get(x['priority'],2),x['note'].lower()))
                 return self.send_json(items)
@@ -242,12 +245,12 @@ class Handler(SimpleHTTPRequestHandler):
                 for r in rows:
                     d=serialize(r)
                     for line_no,line in enumerate(d['content'].splitlines(),1):
-                        m=re.match(r'^\s*- \[( |x|X)\]\s+(.+)$',line)
+                        m=TASK_LINE_RE.match(line)
                         if not m: continue
                         text=m.group(2).strip(); done=m.group(1).lower()=='x'
-                        dm=re.search(r'(?:📅|due:)\s*(\d{4}-\d{2}-\d{2})',text,re.I); due=dm.group(1) if dm else None
-                        pm=re.search(r'(?:priority:\s*|!)(high|medium|low)\b',text,re.I); priority=pm.group(1).lower() if pm else 'normal'
-                        jm=re.search(r'(?:project:\s*|#project/)([A-Za-z0-9._-]+)',text,re.I); project=jm.group(1) if jm else 'Unassigned'
+                        dm=DUE_RE.search(text); due=dm.group(1) if dm else None
+                        pm=PRIORITY_RE.search(text); priority=pm.group(1).lower() if pm else 'normal'
+                        jm=PROJECT_RE.search(text); project=jm.group(1) if jm else 'Unassigned'
                         item={'due':due,'done':done,'priority':priority,'project':project,'text':text,'note':d['title'],'path':d['path'],'line':line_no}
                         lane='done' if done else ('no_due' if not due else ('overdue' if due<today else ('today' if due==today else 'upcoming')))
                         board[lane].append(item)
@@ -263,11 +266,11 @@ class Handler(SimpleHTTPRequestHandler):
                 for r in rows:
                     d=serialize(r)
                     for line_no,line in enumerate(d['content'].splitlines(),1):
-                        m=re.match(r'^\s*- \[( |x|X)\]\s+(.+)$',line)
+                        m=TASK_LINE_RE.match(line)
                         if not m or m.group(1).lower()=='x': continue
-                        text=m.group(2).strip(); dm=re.search(r'(?:📅|due:)\s*(\d{4}-\d{2}-\d{2})',text,re.I); due=dm.group(1) if dm else None
-                        pm=re.search(r'(?:priority:\s*|!)(high|medium|low)\b',text,re.I); priority=pm.group(1).lower() if pm else 'normal'
-                        jm=re.search(r'(?:project:\s*|#project/)([A-Za-z0-9._-]+)',text,re.I); project=jm.group(1) if jm else 'Unassigned'
+                        text=m.group(2).strip(); dm=DUE_RE.search(text); due=dm.group(1) if dm else None
+                        pm=PRIORITY_RE.search(text); priority=pm.group(1).lower() if pm else 'normal'
+                        jm=PROJECT_RE.search(text); project=jm.group(1) if jm else 'Unassigned'
                         if not due and priority not in ('high','medium'): continue
                         if due and due>end: continue
                         bucket='overdue' if due and due<today_s else ('today' if due==today_s else ('next' if due else 'priority'))
@@ -281,12 +284,12 @@ class Handler(SimpleHTTPRequestHandler):
                 for r in rows:
                     d=serialize(r)
                     for line_no,line in enumerate(d['content'].splitlines(),1):
-                        m=re.match(r'^\s*- \[( |x|X)\]\s+(.+)$',line)
+                        m=TASK_LINE_RE.match(line)
                         if not m: continue
                         text=m.group(2).strip(); done=m.group(1).lower()=='x'
-                        dm=re.search(r'(?:📅|due:)\s*(\d{4}-\d{2}-\d{2})',text,re.I); due=dm.group(1) if dm else None
-                        pm=re.search(r'(?:priority:\s*|!)(high|medium|low)\b',text,re.I); priority=pm.group(1).lower() if pm else 'normal'
-                        jm=re.search(r'(?:project:\s*|#project/)([A-Za-z0-9._-]+)',text,re.I); project=jm.group(1) if jm else 'Unassigned'
+                        dm=DUE_RE.search(text); due=dm.group(1) if dm else None
+                        pm=PRIORITY_RE.search(text); priority=pm.group(1).lower() if pm else 'normal'
+                        jm=PROJECT_RE.search(text); project=jm.group(1) if jm else 'Unassigned'
                         items.append({'done':done,'due':due,'priority':priority,'project':project,'text':text,'note':d['title'],'path':d['path'],'line':line_no})
                 open_items=[x for x in items if not x['done']]; done_items=[x for x in items if x['done']]
                 overdue=[x for x in open_items if x['due'] and x['due']<today_s]
@@ -301,12 +304,12 @@ class Handler(SimpleHTTPRequestHandler):
                 for r in rows:
                     d=serialize(r)
                     for line_no,line in enumerate(d['content'].splitlines(),1):
-                        m=re.match(r'^\s*- \[( |x|X)\]\s+(.+)$',line)
+                        m=TASK_LINE_RE.match(line)
                         if not m: continue
                         text=m.group(2).strip(); done=m.group(1).lower()=='x'
-                        dm=re.search(r'(?:📅|due:)\s*(\d{4}-\d{2}-\d{2})',text,re.I); due=dm.group(1) if dm else None
-                        pm=re.search(r'(?:priority:\s*|!)(high|medium|low)\b',text,re.I); priority=pm.group(1).lower() if pm else 'normal'
-                        jm=re.search(r'(?:project:\s*|#project/)([A-Za-z0-9._-]+)',text,re.I); project=jm.group(1) if jm else 'Unassigned'
+                        dm=DUE_RE.search(text); due=dm.group(1) if dm else None
+                        pm=PRIORITY_RE.search(text); priority=pm.group(1).lower() if pm else 'normal'
+                        jm=PROJECT_RE.search(text); project=jm.group(1) if jm else 'Unassigned'
                         items.append({'done':done,'due':due,'priority':priority,'project':project,'text':text,'note':d['title'],'path':d['path'],'line':line_no})
                 total=len(items); done=sum(x['done'] for x in items); open_n=total-done
                 overdue=sum(bool(not x['done'] and x['due'] and x['due']<today_s) for x in items)
@@ -326,12 +329,12 @@ class Handler(SimpleHTTPRequestHandler):
                 for r in rows:
                     d=serialize(r)
                     for line_no,line in enumerate(d['content'].splitlines(),1):
-                        m=re.match(r'^\s*- \[( |x|X)\]\s+(.+)$',line)
+                        m=TASK_LINE_RE.match(line)
                         if not m: continue
-                        text=m.group(2).strip(); jm=re.search(r'(?:project:\s*|#project/)([A-Za-z0-9._-]+)',text,re.I); project=jm.group(1) if jm else 'Unassigned'
+                        text=m.group(2).strip(); jm=PROJECT_RE.search(text); project=jm.group(1) if jm else 'Unassigned'
                         if project.lower()!=name.lower(): continue
-                        done=m.group(1).lower()=='x'; dm=re.search(r'(?:📅|due:)\s*(\d{4}-\d{2}-\d{2})',text,re.I); due=dm.group(1) if dm else None
-                        pm=re.search(r'(?:priority:\s*|!)(high|medium|low)\b',text,re.I); priority=pm.group(1).lower() if pm else 'normal'
+                        done=m.group(1).lower()=='x'; dm=DUE_RE.search(text); due=dm.group(1) if dm else None
+                        pm=PRIORITY_RE.search(text); priority=pm.group(1).lower() if pm else 'normal'
                         notes.add(d['path']); items.append({'done':done,'due':due,'priority':priority,'project':project,'text':text,'note':d['title'],'path':d['path'],'line':line_no,'overdue':bool(not done and due and due<today)})
                 open_items=[x for x in items if not x['done']]; done_items=[x for x in items if x['done']]; weight={'high':0,'medium':1,'normal':2,'low':3}
                 open_items.sort(key=lambda x:(not x['overdue'],x['due'] or '9999-12-31',weight.get(x['priority'],2),x['note'].lower()))
@@ -343,13 +346,13 @@ class Handler(SimpleHTTPRequestHandler):
                 for r in rows:
                     d=serialize(r)
                     for line_no,line in enumerate(d['content'].splitlines(),1):
-                        m=re.match(r'^\s*- \[( |x|X)\]\s+(.+)$',line)
+                        m=TASK_LINE_RE.match(line)
                         if not m: continue
-                        text=m.group(2).strip(); dm=re.search(r'(?:📅|due:)\s*(\d{4}-\d{2}-\d{2})',text,re.I)
+                        text=m.group(2).strip(); dm=DUE_RE.search(text)
                         if not dm: continue
-                        jm=re.search(r'(?:project:\s*|#project/)([A-Za-z0-9._-]+)',text,re.I); proj=jm.group(1) if jm else 'Unassigned'
+                        jm=PROJECT_RE.search(text); proj=jm.group(1) if jm else 'Unassigned'
                         if project and proj.lower()!=project.lower(): continue
-                        pm=re.search(r'(?:priority:\s*|!)(high|medium|low)\b',text,re.I); priority=pm.group(1).lower() if pm else 'normal'
+                        pm=PRIORITY_RE.search(text); priority=pm.group(1).lower() if pm else 'normal'
                         items.append({'date':dm.group(1),'done':m.group(1).lower()=='x','priority':priority,'project':proj,'text':text,'note':d['title'],'path':d['path'],'line':line_no})
                 weight={'high':0,'medium':1,'normal':2,'low':3}; items.sort(key=lambda x:(x['date'],x['done'],weight.get(x['priority'],2),x['project'].lower()))
                 months={}
@@ -361,14 +364,14 @@ class Handler(SimpleHTTPRequestHandler):
                 for r in rows:
                     d=serialize(r)
                     for line_no,line in enumerate(d['content'].splitlines(),1):
-                        m=re.match(r'^\s*- \[( |x|X)\]\s+(.+)$',line)
+                        m=TASK_LINE_RE.match(line)
                         if not m: continue
-                        text=m.group(2).strip(); mm=re.search(r'(?:milestone:\s*|#milestone/)([A-Za-z0-9._-]+)',text,re.I)
+                        text=m.group(2).strip(); mm=MILESTONE_RE.search(text)
                         if not mm: continue
-                        jm=re.search(r'(?:project:\s*|#project/)([A-Za-z0-9._-]+)',text,re.I); proj=jm.group(1) if jm else 'Unassigned'
+                        jm=PROJECT_RE.search(text); proj=jm.group(1) if jm else 'Unassigned'
                         if project and proj.lower()!=project.lower(): continue
-                        dm=re.search(r'(?:📅|due:)\s*(\d{4}-\d{2}-\d{2})',text,re.I); due=dm.group(1) if dm else None
-                        pm=re.search(r'(?:priority:\s*|!)(high|medium|low)\b',text,re.I); priority=pm.group(1).lower() if pm else 'normal'; done=m.group(1).lower()=='x'
+                        dm=DUE_RE.search(text); due=dm.group(1) if dm else None
+                        pm=PRIORITY_RE.search(text); priority=pm.group(1).lower() if pm else 'normal'; done=m.group(1).lower()=='x'
                         items.append({'milestone':mm.group(1),'project':proj,'due':due,'done':done,'priority':priority,'overdue':bool(not done and due and due<today),'text':text,'note':d['title'],'path':d['path'],'line':line_no})
                 groups={}
                 for x in items:
@@ -386,15 +389,15 @@ class Handler(SimpleHTTPRequestHandler):
                 for r in rows:
                     d=serialize(r)
                     for line_no,line in enumerate(d['content'].splitlines(),1):
-                        m=re.match(r'^\s*- \[( |x|X)\]\s+(.+)$',line)
+                        m=TASK_LINE_RE.match(line)
                         if not m: continue
-                        text=m.group(2).strip(); mm=re.search(r'(?:milestone:\s*|#milestone/)([A-Za-z0-9._-]+)',text,re.I)
+                        text=m.group(2).strip(); mm=MILESTONE_RE.search(text)
                         if not mm: continue
-                        ms=mm.group(1); jm=re.search(r'(?:project:\s*|#project/)([A-Za-z0-9._-]+)',text,re.I); proj=jm.group(1) if jm else 'Unassigned'
+                        ms=mm.group(1); jm=PROJECT_RE.search(text); proj=jm.group(1) if jm else 'Unassigned'
                         if project and proj.lower()!=project.lower(): continue
                         if milestone and ms.lower()!=milestone.lower(): continue
-                        done=m.group(1).lower()=='x'; dm=re.search(r'(?:📅|due:)\s*(\d{4}-\d{2}-\d{2})',text,re.I); due=dm.group(1) if dm else None
-                        pm=re.search(r'(?:priority:\s*|!)(high|medium|low)\b',text,re.I); priority=pm.group(1).lower() if pm else 'normal'; overdue=bool(not done and due and due<today)
+                        done=m.group(1).lower()=='x'; dm=DUE_RE.search(text); due=dm.group(1) if dm else None
+                        pm=PRIORITY_RE.search(text); priority=pm.group(1).lower() if pm else 'normal'; overdue=bool(not done and due and due<today)
                         item={'milestone':ms,'project':proj,'due':due,'done':done,'priority':priority,'overdue':overdue,'text':text,'note':d['title'],'path':d['path'],'line':line_no}
                         lane='done' if done else ('overdue' if overdue else 'active'); board[lane].append(item)
                         key=proj+' / '+ms; z=summary.setdefault(key,{'project':proj,'milestone':ms,'total':0,'open':0,'done':0,'overdue':0})
@@ -409,13 +412,13 @@ class Handler(SimpleHTTPRequestHandler):
                 for r in rows:
                     d=serialize(r)
                     for line_no,line in enumerate(d['content'].splitlines(),1):
-                        m=re.match(r'^\s*- \[( |x|X)\]\s+(.+)$',line)
+                        m=TASK_LINE_RE.match(line)
                         if not m: continue
-                        text=m.group(2).strip(); jm=re.search(r'(?:project:\s*|#project/)([A-Za-z0-9._-]+)',text,re.I); proj=jm.group(1) if jm else 'Unassigned'
+                        text=m.group(2).strip(); jm=PROJECT_RE.search(text); proj=jm.group(1) if jm else 'Unassigned'
                         if project and proj.lower()!=project.lower(): continue
-                        im=re.search(r'(?:taskid:\s*|#task/)([A-Za-z0-9._-]+)',text,re.I); taskid=im.group(1) if im else None
-                        deps=re.findall(r'(?:depends:\s*|#depends/)([A-Za-z0-9._-]+)',text,re.I)
-                        dm=re.search(r'(?:📅|due:)\s*(\d{4}-\d{2}-\d{2})',text,re.I); due=dm.group(1) if dm else None
+                        im=TASK_ID_RE.search(text); taskid=im.group(1) if im else None
+                        deps=DEPENDENCY_RE.findall(text)
+                        dm=DUE_RE.search(text); due=dm.group(1) if dm else None
                         item={'taskid':taskid,'depends':deps,'project':proj,'done':m.group(1).lower()=='x','due':due,'text':text,'note':d['title'],'path':d['path'],'line':line_no}
                         tasks.append(item)
                         if taskid: ids[taskid.lower()]=item
@@ -435,14 +438,14 @@ class Handler(SimpleHTTPRequestHandler):
                 for r in rows:
                     d=serialize(r)
                     for line_no,line in enumerate(d['content'].splitlines(),1):
-                        m=re.match(r'^\s*- \[( |x|X)\]\s+(.+)$',line)
+                        m=TASK_LINE_RE.match(line)
                         if not m: continue
-                        text=m.group(2).strip(); jm=re.search(r'(?:project:\s*|#project/)([A-Za-z0-9._-]+)',text,re.I); proj=jm.group(1) if jm else 'Unassigned'
+                        text=m.group(2).strip(); jm=PROJECT_RE.search(text); proj=jm.group(1) if jm else 'Unassigned'
                         if project and proj.lower()!=project.lower(): continue
-                        im=re.search(r'(?:taskid:\s*|#task/)([A-Za-z0-9._-]+)',text,re.I); taskid=im.group(1) if im else None
+                        im=TASK_ID_RE.search(text); taskid=im.group(1) if im else None
                         if not taskid: continue
-                        deps=re.findall(r'(?:depends:\s*|#depends/)([A-Za-z0-9._-]+)',text,re.I)
-                        dm=re.search(r'(?:📅|due:)\s*(\d{4}-\d{2}-\d{2})',text,re.I); due=dm.group(1) if dm else None
+                        deps=DEPENDENCY_RE.findall(text)
+                        dm=DUE_RE.search(text); due=dm.group(1) if dm else None
                         item={'taskid':taskid,'depends':deps,'project':proj,'done':m.group(1).lower()=='x','due':due,'text':text,'note':d['title'],'path':d['path'],'line':line_no}
                         tasks.append(item); ids[taskid.lower()]=item
                 visiting=set(); memo={}; cycles=set()
@@ -468,14 +471,14 @@ class Handler(SimpleHTTPRequestHandler):
                 for r in rows:
                     d=serialize(r)
                     for line_no,line in enumerate(d['content'].splitlines(),1):
-                        m=re.match(r'^\s*- \[( |x|X)\]\s+(.+)$',line)
+                        m=TASK_LINE_RE.match(line)
                         if not m or m.group(1).lower()=='x': continue
-                        text=m.group(2).strip(); jm=re.search(r'(?:project:\s*|#project/)([A-Za-z0-9._-]+)',text,re.I); proj=jm.group(1) if jm else 'Unassigned'
+                        text=m.group(2).strip(); jm=PROJECT_RE.search(text); proj=jm.group(1) if jm else 'Unassigned'
                         if project and proj.lower()!=project.lower(): continue
-                        im=re.search(r'(?:taskid:\s*|#task/)([A-Za-z0-9._-]+)',text,re.I); taskid=im.group(1) if im else None
-                        deps=re.findall(r'(?:depends:\s*|#depends/)([A-Za-z0-9._-]+)',text,re.I)
-                        dm=re.search(r'(?:📅|due:)\s*(\d{4}-\d{2}-\d{2})',text,re.I); due=dm.group(1) if dm else None
-                        pm=re.search(r'(?:priority:\s*|!)(high|medium|low)\b',text,re.I); priority=pm.group(1).lower() if pm else 'normal'
+                        im=TASK_ID_RE.search(text); taskid=im.group(1) if im else None
+                        deps=DEPENDENCY_RE.findall(text)
+                        dm=DUE_RE.search(text); due=dm.group(1) if dm else None
+                        pm=PRIORITY_RE.search(text); priority=pm.group(1).lower() if pm else 'normal'
                         item={'taskid':taskid,'depends':deps,'project':proj,'due':due,'priority':priority,'text':text,'note':d['title'],'path':d['path'],'line':line_no}; tasks.append(item)
                         if taskid: ids[taskid.lower()]=item
                 risks=[]
@@ -498,13 +501,13 @@ class Handler(SimpleHTTPRequestHandler):
                 for r in rows:
                     d=serialize(r)
                     for line_no,line in enumerate(d['content'].splitlines(),1):
-                        m=re.match(r'^\s*- \[( |x|X)\]\s+(.+)$',line)
+                        m=TASK_LINE_RE.match(line)
                         if not m or m.group(1).lower()=='x': continue
-                        text=m.group(2).strip(); jm=re.search(r'(?:project:\s*|#project/)([A-Za-z0-9._-]+)',text,re.I); proj=jm.group(1) if jm else 'Unassigned'
+                        text=m.group(2).strip(); jm=PROJECT_RE.search(text); proj=jm.group(1) if jm else 'Unassigned'
                         if project and proj.lower()!=project.lower(): continue
-                        dm=re.search(r'(?:📅|due:)\s*(\d{4}-\d{2}-\d{2})',text,re.I); due=dm.group(1) if dm else None
-                        pm=re.search(r'(?:priority:\s*|!)(high|medium|low)\b',text,re.I); priority=pm.group(1).lower() if pm else 'normal'
-                        em=re.search(r'(?:estimate:|est:)\s*(\d+(?:\.\d+)?)h\b',text,re.I); estimate=float(em.group(1)) if em else None
+                        dm=DUE_RE.search(text); due=dm.group(1) if dm else None
+                        pm=PRIORITY_RE.search(text); priority=pm.group(1).lower() if pm else 'normal'
+                        em=ESTIMATE_RE.search(text); estimate=float(em.group(1)) if em else None
                         items.append({'project':proj,'due':due,'priority':priority,'estimate_hours':estimate,'text':text,'note':d['title'],'path':d['path'],'line':line_no})
                 projects={}
                 for x in items:
@@ -523,12 +526,12 @@ class Handler(SimpleHTTPRequestHandler):
                 for r in rows:
                     d=serialize(r)
                     for line_no,line in enumerate(d['content'].splitlines(),1):
-                        m=re.match(r'^\s*- \[( |x|X)\]\s+(.+)$',line)
+                        m=TASK_LINE_RE.match(line)
                         if not m or m.group(1).lower()=='x': continue
-                        text=m.group(2).strip(); jm=re.search(r'(?:project:\s*|#project/)([A-Za-z0-9._-]+)',text,re.I); proj=jm.group(1) if jm else 'Unassigned'
+                        text=m.group(2).strip(); jm=PROJECT_RE.search(text); proj=jm.group(1) if jm else 'Unassigned'
                         if project and proj.lower()!=project.lower(): continue
-                        dm=re.search(r'(?:📅|due:)\s*(\d{4}-\d{2}-\d{2})',text,re.I); due=dm.group(1) if dm else None
-                        em=re.search(r'(?:estimate:|est:)\s*(\d+(?:\.\d+)?)h\b',text,re.I); estimate=float(em.group(1)) if em else None
+                        dm=DUE_RE.search(text); due=dm.group(1) if dm else None
+                        em=ESTIMATE_RE.search(text); estimate=float(em.group(1)) if em else None
                         if due and due<=through: items.append({'project':proj,'due':due,'estimate_hours':estimate,'text':text,'note':d['title'],'path':d['path'],'line':line_no,'overdue':due<today_s})
                 projects={}
                 for x in items:
@@ -547,12 +550,12 @@ class Handler(SimpleHTTPRequestHandler):
                 for r in rows:
                     d=serialize(r)
                     for line_no,line in enumerate(d['content'].splitlines(),1):
-                        m=re.match(r'^\s*- \[( |x|X)\]\s+(.+)$',line)
+                        m=TASK_LINE_RE.match(line)
                         if not m or m.group(1).lower()=='x': continue
-                        text=m.group(2).strip(); jm=re.search(r'(?:project:\s*|#project/)([A-Za-z0-9._-]+)',text,re.I); proj=jm.group(1) if jm else 'Unassigned'
+                        text=m.group(2).strip(); jm=PROJECT_RE.search(text); proj=jm.group(1) if jm else 'Unassigned'
                         if project and proj.lower()!=project.lower(): continue
-                        dm=re.search(r'(?:📅|due:)\s*(\d{4}-\d{2}-\d{2})',text,re.I); due=dm.group(1) if dm else None
-                        em=re.search(r'(?:estimate:|est:)\s*(\d+(?:\.\d+)?)h\b',text,re.I); estimate=float(em.group(1)) if em else 1.0
+                        dm=DUE_RE.search(text); due=dm.group(1) if dm else None
+                        em=ESTIMATE_RE.search(text); estimate=float(em.group(1)) if em else 1.0
                         items.append({'project':proj,'due':due,'estimate_hours':estimate,'text':text,'note':d['title'],'path':d['path'],'line':line_no})
                 total=round(sum(x['estimate_hours'] for x in items),1); dated=[x for x in items if x['due']]
                 points=[]
@@ -566,12 +569,12 @@ class Handler(SimpleHTTPRequestHandler):
                 for r in rows:
                     d=serialize(r)
                     for line_no,line in enumerate(d['content'].splitlines(),1):
-                        m=re.match(r'^\s*- \[( |x|X)\]\s+(.+)$',line)
+                        m=TASK_LINE_RE.match(line)
                         if not m or m.group(1).lower()=='x': continue
-                        text=m.group(2).strip(); jm=re.search(r'(?:project:\s*|#project/)([A-Za-z0-9._-]+)',text,re.I); proj=jm.group(1) if jm else 'Unassigned'
+                        text=m.group(2).strip(); jm=PROJECT_RE.search(text); proj=jm.group(1) if jm else 'Unassigned'
                         if project and proj.lower()!=project.lower(): continue
-                        dm=re.search(r'(?:📅|due:)\s*(\d{4}-\d{2}-\d{2})',text,re.I); due=dm.group(1) if dm else None
-                        em=re.search(r'(?:estimate:|est:)\s*(\d+(?:\.\d+)?)h\b',text,re.I); estimate=float(em.group(1)) if em else 1.0
+                        dm=DUE_RE.search(text); due=dm.group(1) if dm else None
+                        em=ESTIMATE_RE.search(text); estimate=float(em.group(1)) if em else 1.0
                         items.append({'project':proj,'due':due,'estimate_hours':estimate,'text':text,'note':d['title'],'path':d['path'],'line':line_no})
                 projects={}
                 for x in items:
@@ -592,13 +595,13 @@ class Handler(SimpleHTTPRequestHandler):
                 for r in rows:
                     d=serialize(r)
                     for line_no,line in enumerate(d['content'].splitlines(),1):
-                        m=re.match(r'^\s*- \[( |x|X)\]\s+(.+)$',line)
+                        m=TASK_LINE_RE.match(line)
                         if not m or m.group(1).lower()=='x': continue
-                        text=m.group(2).strip(); jm=re.search(r'(?:project:\s*|#project/)([A-Za-z0-9._-]+)',text,re.I); proj=jm.group(1) if jm else 'Unassigned'
+                        text=m.group(2).strip(); jm=PROJECT_RE.search(text); proj=jm.group(1) if jm else 'Unassigned'
                         if project and proj.lower()!=project.lower(): continue
-                        dm=re.search(r'(?:📅|due:)\s*(\d{4}-\d{2}-\d{2})',text,re.I); due=dm.group(1) if dm else None
-                        em=re.search(r'(?:estimate:|est:)\s*(\d+(?:\.\d+)?)h\b',text,re.I); estimate=float(em.group(1)) if em else 1.0
-                        pm=re.search(r'(?:priority:\s*|!)(high|medium|low)\b',text,re.I); priority=pm.group(1).lower() if pm else 'normal'
+                        dm=DUE_RE.search(text); due=dm.group(1) if dm else None
+                        em=ESTIMATE_RE.search(text); estimate=float(em.group(1)) if em else 1.0
+                        pm=PRIORITY_RE.search(text); priority=pm.group(1).lower() if pm else 'normal'
                         items.append({'project':proj,'due':due,'estimate_hours':estimate,'priority':priority,'text':text,'note':d['title'],'path':d['path'],'line':line_no})
                 weight={'high':0,'medium':1,'normal':2,'low':3}; items.sort(key=lambda x:(x['due'] or '9999-12-31',weight.get(x['priority'],2),x['project'].lower(),x['note'].lower()))
                 days=[]; cursor=today; remaining=capacity; bucket=[]
@@ -619,12 +622,12 @@ class Handler(SimpleHTTPRequestHandler):
                 for r in rows:
                     d=serialize(r)
                     for line_no,line in enumerate(d['content'].splitlines(),1):
-                        m=re.match(r'^\s*- \[( |x|X)\]\s+(.+)$',line)
+                        m=TASK_LINE_RE.match(line)
                         if not m or m.group(1).lower()=='x': continue
-                        text=m.group(2).strip(); jm=re.search(r'(?:project:\s*|#project/)([A-Za-z0-9._-]+)',text,re.I); proj=jm.group(1) if jm else 'Unassigned'
+                        text=m.group(2).strip(); jm=PROJECT_RE.search(text); proj=jm.group(1) if jm else 'Unassigned'
                         if project and proj.lower()!=project.lower(): continue
-                        dm=re.search(r'(?:📅|due:)\s*(\d{4}-\d{2}-\d{2})',text,re.I); due=dm.group(1) if dm else None
-                        bm=re.search(r'(?:baseline:|base:)\s*(\d{4}-\d{2}-\d{2})',text,re.I); baseline=bm.group(1) if bm else None
+                        dm=DUE_RE.search(text); due=dm.group(1) if dm else None
+                        bm=BASELINE_RE.search(text); baseline=bm.group(1) if bm else None
                         if not due or not baseline: continue
                         delta=(datetime.fromisoformat(due).date()-datetime.fromisoformat(baseline).date()).days
                         state='slipped' if delta>0 else ('ahead' if delta<0 else 'on_baseline')
@@ -643,12 +646,12 @@ class Handler(SimpleHTTPRequestHandler):
                 for r in rows:
                     d=serialize(r)
                     for line_no,line in enumerate(d['content'].splitlines(),1):
-                        m=re.match(r'^\s*- \[( |x|X)\]\s+(.+)$',line)
+                        m=TASK_LINE_RE.match(line)
                         if not m: continue
-                        text=m.group(2).strip(); jm=re.search(r'(?:project:\s*|#project/)([A-Za-z0-9._-]+)',text,re.I); proj=jm.group(1) if jm else 'Unassigned'
+                        text=m.group(2).strip(); jm=PROJECT_RE.search(text); proj=jm.group(1) if jm else 'Unassigned'
                         if project and proj.lower()!=project.lower(): continue
-                        dm=re.search(r'(?:📅|due:)\s*(\d{4}-\d{2}-\d{2})',text,re.I); due=dm.group(1) if dm else None
-                        bm=re.search(r'(?:baseline:|base:)\s*(\d{4}-\d{2}-\d{2})',text,re.I); baseline=bm.group(1) if bm else None
+                        dm=DUE_RE.search(text); due=dm.group(1) if dm else None
+                        bm=BASELINE_RE.search(text); baseline=bm.group(1) if bm else None
                         done=m.group(1).lower()=='x'; delta=(datetime.fromisoformat(due).date()-datetime.fromisoformat(baseline).date()).days if due and baseline else None
                         covered=bool(due and baseline); status='untracked' if not covered else ('slipped' if delta>0 else ('ahead' if delta<0 else 'on_baseline'))
                         items.append({'project':proj,'done':done,'due':due,'baseline':baseline,'slip_days':delta,'status':status,'overdue':bool(not done and due and due<today),'text':text,'note':d['title'],'path':d['path'],'line':line_no})
@@ -671,15 +674,15 @@ class Handler(SimpleHTTPRequestHandler):
                 for r in rows:
                     d=serialize(r)
                     for line_no,line in enumerate(d['content'].splitlines(),1):
-                        m=re.match(r'^\s*- \[( |x|X)\]\s+(.+)$',line)
+                        m=TASK_LINE_RE.match(line)
                         if not m: continue
-                        text=m.group(2).strip(); jm=re.search(r'(?:project:\s*|#project/)([A-Za-z0-9._-]+)',text,re.I); proj=jm.group(1) if jm else 'Unassigned'
+                        text=m.group(2).strip(); jm=PROJECT_RE.search(text); proj=jm.group(1) if jm else 'Unassigned'
                         if project and proj.lower()!=project.lower(): continue
-                        im=re.search(r'(?:taskid:\s*|#task/)([A-Za-z0-9._-]+)',text,re.I); taskid=im.group(1) if im else None
-                        deps=re.findall(r'(?:depends:\s*|#depends/)([A-Za-z0-9._-]+)',text,re.I)
-                        dm=re.search(r'(?:📅|due:)\s*(\d{4}-\d{2}-\d{2})',text,re.I); due=dm.group(1) if dm else None
-                        bm=re.search(r'(?:baseline:|base:)\s*(\d{4}-\d{2}-\d{2})',text,re.I); baseline=bm.group(1) if bm else None
-                        em=re.search(r'(?:estimate:|est:)\s*(\d+(?:\.\d+)?)h\b',text,re.I); estimate=float(em.group(1)) if em else None
+                        im=TASK_ID_RE.search(text); taskid=im.group(1) if im else None
+                        deps=DEPENDENCY_RE.findall(text)
+                        dm=DUE_RE.search(text); due=dm.group(1) if dm else None
+                        bm=BASELINE_RE.search(text); baseline=bm.group(1) if bm else None
+                        em=ESTIMATE_RE.search(text); estimate=float(em.group(1)) if em else None
                         raw.append({'project':proj,'taskid':taskid,'depends':deps,'due':due,'baseline':baseline,'estimate_hours':estimate,'done':m.group(1).lower()=='x','text':text,'note':d['title'],'path':d['path'],'line':line_no})
                         if taskid: seen_ids.setdefault(taskid.lower(),0); seen_ids[taskid.lower()]+=1
                 for x in raw:
@@ -707,16 +710,16 @@ class Handler(SimpleHTTPRequestHandler):
                 for r in rows:
                     d=serialize(r)
                     for line_no,line in enumerate(d['content'].splitlines(),1):
-                        m=re.match(r'^\s*- \[( |x|X)\]\s+(.+)$',line)
+                        m=TASK_LINE_RE.match(line)
                         if not m: continue
-                        text=m.group(2).strip(); jm=re.search(r'(?:project:\s*|#project/)([A-Za-z0-9._-]+)',text,re.I); proj=jm.group(1) if jm else 'Unassigned'
+                        text=m.group(2).strip(); jm=PROJECT_RE.search(text); proj=jm.group(1) if jm else 'Unassigned'
                         if project and proj.lower()!=project.lower(): continue
-                        im=re.search(r'(?:taskid:\s*|#task/)([A-Za-z0-9._-]+)',text,re.I); taskid=im.group(1) if im else None
-                        deps=re.findall(r'(?:depends:\s*|#depends/)([A-Za-z0-9._-]+)',text,re.I)
-                        dm=re.search(r'(?:📅|due:)\s*(\d{4}-\d{2}-\d{2})',text,re.I); due=dm.group(1) if dm else None
-                        bm=re.search(r'(?:baseline:|base:)\s*(\d{4}-\d{2}-\d{2})',text,re.I); baseline=bm.group(1) if bm else None
-                        em=re.search(r'(?:estimate:|est:)\s*(\d+(?:\.\d+)?)h\b',text,re.I); estimate=float(em.group(1)) if em else None
-                        pm=re.search(r'(?:priority:\s*|!)(high|medium|low)\b',text,re.I); priority=pm.group(1).lower() if pm else 'normal'
+                        im=TASK_ID_RE.search(text); taskid=im.group(1) if im else None
+                        deps=DEPENDENCY_RE.findall(text)
+                        dm=DUE_RE.search(text); due=dm.group(1) if dm else None
+                        bm=BASELINE_RE.search(text); baseline=bm.group(1) if bm else None
+                        em=ESTIMATE_RE.search(text); estimate=float(em.group(1)) if em else None
+                        pm=PRIORITY_RE.search(text); priority=pm.group(1).lower() if pm else 'normal'
                         raw.append({'project':proj,'taskid':taskid,'depends':deps,'due':due,'baseline':baseline,'estimate_hours':estimate,'priority':priority,'done':m.group(1).lower()=='x','text':text,'note':d['title'],'path':d['path'],'line':line_no})
                         if taskid: seen_ids.setdefault(taskid.lower(),0); seen_ids[taskid.lower()]+=1
                 done_ids={x['taskid'].lower() for x in raw if x['done'] and x['taskid']}
@@ -749,12 +752,12 @@ class Handler(SimpleHTTPRequestHandler):
                 for r in rows:
                     d=serialize(r)
                     for line_no,line in enumerate(d['content'].splitlines(),1):
-                        m=re.match(r'^\s*- \[( |x|X)\]\s+(.+)$',line)
+                        m=TASK_LINE_RE.match(line)
                         if not m: continue
                         text=m.group(2).strip(); done=m.group(1).lower()=='x'
-                        dm=re.search(r'(?:📅|due:)\s*(\d{4}-\d{2}-\d{2})',text,re.I); due=dm.group(1) if dm else None
-                        pm=re.search(r'(?:priority:\s*|!)(high|medium|low)\b',text,re.I); priority=pm.group(1).lower() if pm else 'normal'
-                        jm=re.search(r'(?:project:\s*|#project/)([A-Za-z0-9._-]+)',text,re.I); project=jm.group(1) if jm else 'Unassigned'
+                        dm=DUE_RE.search(text); due=dm.group(1) if dm else None
+                        pm=PRIORITY_RE.search(text); priority=pm.group(1).lower() if pm else 'normal'
+                        jm=PROJECT_RE.search(text); project=jm.group(1) if jm else 'Unassigned'
                         items.append({'done':done,'due':due,'priority':priority,'project':project,'text':text,'note':d['title'],'path':d['path'],'line':line_no})
                 projects={}
                 for x in items:
@@ -791,13 +794,13 @@ class Handler(SimpleHTTPRequestHandler):
                 with zipfile.ZipFile(mem,'w',zipfile.ZIP_DEFLATED) as z:
                     for p in vault().rglob('*'):
                         if p.is_file() and '.portable-notes' not in p.parts: z.write(p,p.relative_to(vault()))
-                    z.writestr('portable-notes-backup.json',json.dumps({'version':'2.29.0','created':iso(),'vault':str(vault())},indent=2))
+                    z.writestr('portable-notes-backup.json',json.dumps({'version':'2.30.0','created':iso(),'vault':str(vault())},indent=2))
                 raw=mem.getvalue(); self.send_response(200); self.send_header('Content-Type','application/zip'); self.send_header('Content-Disposition','attachment; filename="portable-notes-vault-backup.zip"'); self.send_header('Content-Length',str(len(raw))); self.end_headers(); return self.wfile.write(raw)
             if u.path=='/api/attachment':
                 rel=norm_rel(q.get('path',[''])[0]); p=md_path(rel)
                 if not p.exists() or p.is_dir(): return self.fail('Attachment not found',404)
                 raw=p.read_bytes(); self.send_response(200); self.send_header('Content-Type',mimetypes.guess_type(p.name)[0] or 'application/octet-stream'); self.send_header('Content-Length',str(len(raw))); self.end_headers(); return self.wfile.write(raw)
-            if u.path=='/api/health': return self.send_json({'ok':True,'version':'2.29.0','vault':str(vault()),'notes':rebuild()})
+            if u.path=='/api/health': return self.send_json({'ok':True,'version':'2.30.0','vault':str(vault()),'notes':rebuild()})
             if u.path=='/': self.path='/static/index.html'
             return super().do_GET()
         except Exception as e: return self.fail(e)
@@ -854,7 +857,7 @@ def main():
     global CFG
     if args.vault: CFG['vault']=str(Path(args.vault).expanduser().resolve()); save_cfg()
     seed(); rebuild(); os.chdir(ROOT); server=ThreadingHTTPServer((HOST,args.port),Handler); url=f'http://{HOST}:{args.port}'
-    print(f'Portable Notes 2.29.0 running at {url}\nVault: {vault()}\nPress Ctrl+C to stop.')
+    print(f'Portable Notes 2.30.0 running at {url}\nVault: {vault()}\nPress Ctrl+C to stop.')
     if not args.no_browser: threading.Timer(.5,lambda:webbrowser.open(url)).start()
     try:server.serve_forever()
     except KeyboardInterrupt:print('\nStopped.')

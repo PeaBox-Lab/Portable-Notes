@@ -10,7 +10,7 @@ A private, local-first Markdown notes and personal knowledge-management applicat
 
 **Repository:** https://github.com/iwebslogtech/Portable-Notes
 
-## What's new in 2.29.0
+## What's new in 2.30.0
 
 - Persistent multi-note tabs and a smoother writing workflow
 - Find and replace with `Ctrl+F`
@@ -149,3 +149,6 @@ Use **Metadata quality** to audit task IDs, due dates, baselines, estimates, dup
 
 ## 2.29 execution readiness
 Use **Execution readiness** to combine metadata quality, dependencies, overdue state, and duplicate-ID checks into an actionable readiness score. Open tasks are classified Ready, Attention, or Blocked, with explicit blocker explanations.
+
+## 2.30 architecture and reliability
+The v2.30 stabilization release centralizes task syntax in `core/tasks.py`, adds domain/service/API package boundaries, expands automated coverage, restores missing historical release documentation, and retains the existing v2.29 routes and cumulative features.
