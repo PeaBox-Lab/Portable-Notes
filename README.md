@@ -10,7 +10,7 @@ A private, local-first Markdown notes and personal knowledge-management applicat
 
 **Repository:** https://github.com/iwebslogtech/Portable-Notes
 
-## What's new in 2.28.0
+## What's new in 2.29.0
 
 - Persistent multi-note tabs and a smoother writing workflow
 - Find and replace with `Ctrl+F`
@@ -146,3 +146,6 @@ Use **Baseline health** to measure how completely project tasks are baselined an
 
 ## 2.28 metadata quality
 Use **Metadata quality** to audit task IDs, due dates, baselines, estimates, duplicate IDs, and dependency references. Each task receives a deterministic 0-100 quality score, with project-level quality rollups.
+
+## 2.29 execution readiness
+Use **Execution readiness** to combine metadata quality, dependencies, overdue state, and duplicate-ID checks into an actionable readiness score. Open tasks are classified Ready, Attention, or Blocked, with explicit blocker explanations.

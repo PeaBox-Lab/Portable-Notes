@@ -1,4 +1,4 @@
-# Portable Notes 2.28.0: Weekly Review
+# Portable Notes 2.29.0: Weekly Review
 
 A cumulative release adding a weekly planning/review workflow while preserving all earlier Portable Notes capabilities.
 

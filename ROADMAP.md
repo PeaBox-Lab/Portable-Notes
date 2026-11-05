@@ -96,3 +96,6 @@
 
 ## 2.28 Metadata Quality ✅
 - Task metadata scoring, duplicate-ID detection, unresolved dependency diagnostics, and project quality rollups delivered.
+
+## 2.29 Execution Readiness ✅
+- Deterministic readiness scores, actionable blocker explanations, task states, project rollups, and filtering delivered.

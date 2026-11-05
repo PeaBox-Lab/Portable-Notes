@@ -1,4 +1,4 @@
-# Portable Notes 2.28.0: Metadata Quality
+# Portable Notes 2.29.0: Metadata Quality
 
 This cumulative release adds task metadata governance and diagnostics while retaining all earlier functionality.
 

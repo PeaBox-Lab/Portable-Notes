@@ -1,4 +1,4 @@
-# Portable Notes 2.28.0: Milestone Board
+# Portable Notes 2.29.0: Milestone Board
 
 This cumulative release turns milestone-tagged Markdown tasks into an execution board while retaining earlier functionality.
 

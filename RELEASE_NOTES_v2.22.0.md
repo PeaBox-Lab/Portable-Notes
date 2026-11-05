@@ -1,4 +1,4 @@
-# Portable Notes 2.28.0: Capacity Planning
+# Portable Notes 2.29.0: Capacity Planning
 
 This cumulative release adds seven-day capacity planning on top of Markdown effort estimates.
 

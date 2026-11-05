@@ -1,4 +1,4 @@
-# Portable Notes 2.28.0: Project Timeline
+# Portable Notes 2.29.0: Project Timeline
 
 This cumulative release adds chronological project planning while retaining all earlier functionality.
 

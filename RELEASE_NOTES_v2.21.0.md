@@ -1,4 +1,4 @@
-# Portable Notes 2.28.0: Workload Planning
+# Portable Notes 2.29.0: Workload Planning
 
 This cumulative release adds effort-aware workload planning while retaining all earlier capabilities.
 

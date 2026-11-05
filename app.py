@@ -1,6 +1,6 @@
 
 #!/usr/bin/env python3
-# Portable Notes 2.28.0: local-first Markdown vault with task intelligence.
+# Portable Notes 2.29.0: local-first Markdown vault with task intelligence.
 from __future__ import annotations
 import argparse, hashlib, html, io, json, mimetypes, os, re, shutil, sqlite3, threading, time, webbrowser, zipfile
 from datetime import datetime, timedelta, timezone
@@ -25,7 +25,7 @@ def norm_rel(value):
     return value
 
 def load_cfg():
-    default={'vault':str(DEFAULT_VAULT),'theme':'system','version':'2.28.0'}
+    default={'vault':str(DEFAULT_VAULT),'theme':'system','version':'2.29.0'}
     if CONFIG.exists():
         try: default.update(json.loads(CONFIG.read_text(encoding='utf-8')))
         except Exception: pass
@@ -700,6 +700,49 @@ class Handler(SimpleHTTPRequestHandler):
                 for z in projects.values(): z['quality_percent']=round(z['score_total']/z['tasks'],1) if z['tasks'] else 100.0; data.append(z)
                 data.sort(key=lambda z:(z['quality_percent'],-z['issues'],z['project'].lower())); tasks.sort(key=lambda x:(x['quality_score'],x['project'].lower(),x['note'].lower()))
                 return self.send_json({'project':project or None,'projects':data,'tasks':tasks})
+            if u.path=='/api/task-readiness':
+                refresh(); project=q.get('project',[''])[0].strip(); tasks=[]; seen_ids={}; today=datetime.now().date().isoformat()
+                with sqlite3.connect(DB) as db: db.row_factory=sqlite3.Row; rows=db.execute('SELECT * FROM notes').fetchall()
+                raw=[]
+                for r in rows:
+                    d=serialize(r)
+                    for line_no,line in enumerate(d['content'].splitlines(),1):
+                        m=re.match(r'^\s*- \[( |x|X)\]\s+(.+)$',line)
+                        if not m: continue
+                        text=m.group(2).strip(); jm=re.search(r'(?:project:\s*|#project/)([A-Za-z0-9._-]+)',text,re.I); proj=jm.group(1) if jm else 'Unassigned'
+                        if project and proj.lower()!=project.lower(): continue
+                        im=re.search(r'(?:taskid:\s*|#task/)([A-Za-z0-9._-]+)',text,re.I); taskid=im.group(1) if im else None
+                        deps=re.findall(r'(?:depends:\s*|#depends/)([A-Za-z0-9._-]+)',text,re.I)
+                        dm=re.search(r'(?:📅|due:)\s*(\d{4}-\d{2}-\d{2})',text,re.I); due=dm.group(1) if dm else None
+                        bm=re.search(r'(?:baseline:|base:)\s*(\d{4}-\d{2}-\d{2})',text,re.I); baseline=bm.group(1) if bm else None
+                        em=re.search(r'(?:estimate:|est:)\s*(\d+(?:\.\d+)?)h\b',text,re.I); estimate=float(em.group(1)) if em else None
+                        pm=re.search(r'(?:priority:\s*|!)(high|medium|low)\b',text,re.I); priority=pm.group(1).lower() if pm else 'normal'
+                        raw.append({'project':proj,'taskid':taskid,'depends':deps,'due':due,'baseline':baseline,'estimate_hours':estimate,'priority':priority,'done':m.group(1).lower()=='x','text':text,'note':d['title'],'path':d['path'],'line':line_no})
+                        if taskid: seen_ids.setdefault(taskid.lower(),0); seen_ids[taskid.lower()]+=1
+                done_ids={x['taskid'].lower() for x in raw if x['done'] and x['taskid']}
+                for x in raw:
+                    if x['done']: continue
+                    blockers=[]
+                    if not x['taskid']: blockers.append('missing task ID')
+                    elif seen_ids.get(x['taskid'].lower(),0)>1: blockers.append('duplicate task ID')
+                    if not x['due']: blockers.append('missing due date')
+                    if x['due'] and not x['baseline']: blockers.append('missing baseline')
+                    if x['estimate_hours'] is None: blockers.append('missing estimate')
+                    missing=[d for d in x['depends'] if d.lower() not in seen_ids]
+                    waiting=[d for d in x['depends'] if d.lower() in seen_ids and d.lower() not in done_ids]
+                    if missing: blockers.append('unresolved dependencies: '+', '.join(missing))
+                    if waiting: blockers.append('waiting on: '+', '.join(waiting))
+                    if x['due'] and x['due']<today: blockers.append('overdue')
+                    score=max(0,100-len(blockers)*15); state='ready' if not blockers else ('attention' if score>=70 else 'blocked')
+                    tasks.append(dict(x,readiness_score=score,state=state,blockers=blockers))
+                projects={}
+                for x in tasks:
+                    z=projects.setdefault(x['project'],{'project':x['project'],'open':0,'ready':0,'attention':0,'blocked':0,'score_total':0})
+                    z['open']+=1; z[x['state']]+=1; z['score_total']+=x['readiness_score']
+                data=[]
+                for z in projects.values(): z['readiness_percent']=round(z['score_total']/z['open'],1) if z['open'] else 100.0; data.append(z)
+                data.sort(key=lambda z:(z['readiness_percent'],-z['blocked'],z['project'].lower())); tasks.sort(key=lambda x:(x['readiness_score'],x['due'] or '9999-12-31',x['note'].lower()))
+                return self.send_json({'project':project or None,'projects':data,'tasks':tasks})
             if u.path=='/api/task-projects':
                 refresh(); items=[]; today=datetime.now().date().isoformat()
                 with sqlite3.connect(DB) as db: db.row_factory=sqlite3.Row; rows=db.execute('SELECT * FROM notes').fetchall()
@@ -748,13 +791,13 @@ class Handler(SimpleHTTPRequestHandler):
                 with zipfile.ZipFile(mem,'w',zipfile.ZIP_DEFLATED) as z:
                     for p in vault().rglob('*'):
                         if p.is_file() and '.portable-notes' not in p.parts: z.write(p,p.relative_to(vault()))
-                    z.writestr('portable-notes-backup.json',json.dumps({'version':'2.28.0','created':iso(),'vault':str(vault())},indent=2))
+                    z.writestr('portable-notes-backup.json',json.dumps({'version':'2.29.0','created':iso(),'vault':str(vault())},indent=2))
                 raw=mem.getvalue(); self.send_response(200); self.send_header('Content-Type','application/zip'); self.send_header('Content-Disposition','attachment; filename="portable-notes-vault-backup.zip"'); self.send_header('Content-Length',str(len(raw))); self.end_headers(); return self.wfile.write(raw)
             if u.path=='/api/attachment':
                 rel=norm_rel(q.get('path',[''])[0]); p=md_path(rel)
                 if not p.exists() or p.is_dir(): return self.fail('Attachment not found',404)
                 raw=p.read_bytes(); self.send_response(200); self.send_header('Content-Type',mimetypes.guess_type(p.name)[0] or 'application/octet-stream'); self.send_header('Content-Length',str(len(raw))); self.end_headers(); return self.wfile.write(raw)
-            if u.path=='/api/health': return self.send_json({'ok':True,'version':'2.28.0','vault':str(vault()),'notes':rebuild()})
+            if u.path=='/api/health': return self.send_json({'ok':True,'version':'2.29.0','vault':str(vault()),'notes':rebuild()})
             if u.path=='/': self.path='/static/index.html'
             return super().do_GET()
         except Exception as e: return self.fail(e)
@@ -811,7 +854,7 @@ def main():
     global CFG
     if args.vault: CFG['vault']=str(Path(args.vault).expanduser().resolve()); save_cfg()
     seed(); rebuild(); os.chdir(ROOT); server=ThreadingHTTPServer((HOST,args.port),Handler); url=f'http://{HOST}:{args.port}'
-    print(f'Portable Notes 2.28.0 running at {url}\nVault: {vault()}\nPress Ctrl+C to stop.')
+    print(f'Portable Notes 2.29.0 running at {url}\nVault: {vault()}\nPress Ctrl+C to stop.')
     if not args.no_browser: threading.Timer(.5,lambda:webbrowser.open(url)).start()
     try:server.serve_forever()
     except KeyboardInterrupt:print('\nStopped.')

@@ -1,5 +1,5 @@
 
-# Portable Notes 2.28 User Guide
+# Portable Notes 2.29 User Guide
 
 ## Start
 
@@ -99,3 +99,6 @@ Choose **Baseline health** to see baseline coverage, slipped/ahead/on-baseline c
 
 ## Metadata quality
 Choose **Metadata quality** to identify incomplete task metadata. Open tasks are checked for task ID, due date, baseline and estimate; task IDs are checked for duplicates, and dependency references are checked for unresolved IDs.
+
+## Execution readiness
+Choose **Execution readiness** to identify work that can start now versus tasks needing attention or blocked by metadata, dependencies, duplicate IDs, or overdue status.

@@ -84,3 +84,6 @@ Health is derived from Markdown baseline/due dates and task status. Red means an
 
 ## 2.28 metadata quality
 Quality scoring is deterministic. Each detected metadata issue subtracts 20 points from a task starting at 100, with a floor of zero. Project quality is the mean task score.
+
+## 2.29 execution readiness
+Readiness is deterministic and request-time derived. Each blocker subtracts 15 points from 100; tasks with no blockers are Ready, scores 70-99 are Attention, and lower scores are Blocked.
