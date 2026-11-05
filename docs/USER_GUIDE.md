@@ -1,5 +1,5 @@
 
-# Portable Notes 2.30 User Guide
+# Portable Notes 2.30.1 User Guide
 
 ## Start
 

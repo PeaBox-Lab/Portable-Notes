@@ -1,11 +1,29 @@
 # Changelog
 
-## [2.30.0] - 2026-11-05
+## [2.30.1] - 2026-11-05
+### Fixed
+- Prevented stale broken JavaScript from being reused through versioned assets and no-cache headers.
+- Added visible async error handling for all command-palette actions.
+- Rendered command-palette entries as accessible buttons.
+
+### Testing
+- Added a 60-check live-server UI/end-to-end suite covering every menu action and primary control.
+- Added `UI_TEST_REPORT_v2.30.1.md` with the complete result inventory.
+
+### Retained
+- All v2.30.0 architecture, security, APIs and cumulative functionality.
+
+
+## [2.30.1] - 2026-11-05
 ### Architecture
 - Added canonical immutable Task model and parser.
 - Centralized task metadata syntax.
 - Added core, services, and API package boundaries.
 - Added reusable TaskRepository and typed application errors.
+
+### Front-end blocker fix
+- Repaired invalid Markdown/wiki-link JavaScript regular expressions that stopped `app.js` at parse time.
+- Added front-end syntax and control-wiring regression coverage.
 
 ### Reliability
 - Expanded automated tests from 3 to 19.
