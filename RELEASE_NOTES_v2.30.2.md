@@ -1,4 +1,4 @@
-# Portable Notes 2.30.3: Full Linkage Rebuild
+# Portable Notes 2.30.4: Full Linkage Rebuild
 
 - Added an explicit Windows launcher: `OPEN_PORTABLE_NOTES.bat`.
 - Added `START_HERE.txt` with exact launch instructions.

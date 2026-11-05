@@ -1,4 +1,4 @@
-# UI End-to-End Test Report: v2.30.3
+# UI End-to-End Test Report: v2.30.4
 
 - Total checks: **63**
 - Passed: **63**

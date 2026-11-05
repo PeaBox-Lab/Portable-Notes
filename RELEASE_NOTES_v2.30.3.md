@@ -1,4 +1,4 @@
-# Portable Notes 2.30.3: Scroll and UI Reliability
+# Portable Notes 2.30.4: Scroll and UI Reliability
 
 ## Fixed
 - The editor and Markdown preview now have explicit bounded vertical scrolling.

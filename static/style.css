@@ -3,7 +3,7 @@
 
 .tabs{display:flex;gap:3px;overflow:auto;padding:5px 8px 0;border-bottom:1px solid var(--line);background:var(--bg)}.tabs button{border:1px solid var(--line);border-bottom:0;background:var(--bg);color:var(--muted);padding:7px 9px;border-radius:7px 7px 0 0;cursor:pointer;white-space:nowrap}.tabs button.active{background:var(--panel);color:var(--ink)}.tabs button span{margin-left:8px;color:var(--muted)}
 
-/* v2.30.3: explicit bounded scroll regions */
+/* v2.30.4: explicit bounded scroll regions */
 html,body{height:100%;min-height:0}
 .app{height:100dvh;min-height:0;overflow:hidden}
 .nav,.context,main{height:100%;min-height:0}
@@ -19,3 +19,13 @@ main{overflow:hidden}
 .context{overflow-y:auto;overscroll-behavior:contain}
 dialog{max-height:80vh;overflow:hidden}
 #commandList{max-height:60vh;overflow-y:auto;overscroll-behavior:contain}
+/* v2.30.4 pane scroll hardening */
+html,body{height:100%;min-height:0}.app{height:100dvh;min-height:0;overflow:hidden}
+.rail{min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain}
+.nav,.context,main,#work{min-height:0}.nav{display:flex;flex-direction:column;overflow:hidden}
+.tree,.list,.context,#editor,#preview,#commandList,#historyList{scrollbar-gutter:stable;overscroll-behavior:contain;overflow-y:auto}
+.tree,.list,.context,#commandList,#historyList{overflow-x:hidden}.list{flex:1;min-height:0}
+#editor,#preview{min-height:0;max-height:100%;overflow-x:auto;overflow-y:auto!important}
+#preview{min-width:0;word-break:break-word}#work{position:relative;overflow:hidden;height:auto}
+#commandList,#historyList{max-height:60vh}#historyDialog,#palette{max-height:82vh}#findDialog{max-height:82vh;overflow-y:auto}
+@media(max-height:650px){header{height:58px}.props{padding-top:6px;padding-bottom:6px}.tree{max-height:20vh}}

@@ -1,6 +1,16 @@
 # Changelog
 
-## [2.30.3] - 2026-11-05
+## [2.30.4] - 2026-11-05
+### Fixed
+- Independent scrolling for every long UI pane and dialog.
+- Preview overflow and compact-height behavior.
+- Note and preview scroll positioning.
+
+### Testing
+- Re-audited all commands, buttons and API-backed actions.
+
+
+## [2.30.4] - 2026-11-05
 ### Fixed
 - Editor and preview vertical scrolling.
 - Navigation and command-palette scroll regions.
@@ -12,14 +22,14 @@
 - Revalidated all command and button linkages.
 
 
-## [2.30.3] - 2026-11-05
+## [2.30.4] - 2026-11-05
 ### Fixed
 - Rebuilt Windows launch flow and clarified that `index.html` cannot run standalone.
 - Added direct-file and server-connection diagnostics.
 - Revalidated every control, command function, and API linkage.
 
 
-## [2.30.3] - 2026-11-05
+## [2.30.4] - 2026-11-05
 ### Fixed
 - Prevented stale broken JavaScript from being reused through versioned assets and no-cache headers.
 - Added visible async error handling for all command-palette actions.
@@ -27,13 +37,13 @@
 
 ### Testing
 - Added a 60-check live-server UI/end-to-end suite covering every menu action and primary control.
-- Added `UI_TEST_REPORT_v2.30.3.md` with the complete result inventory.
+- Added `UI_TEST_REPORT_v2.30.4.md` with the complete result inventory.
 
 ### Retained
 - All v2.30.0 architecture, security, APIs and cumulative functionality.
 
 
-## [2.30.3] - 2026-11-05
+## [2.30.4] - 2026-11-05
 ### Architecture
 - Added canonical immutable Task model and parser.
 - Centralized task metadata syntax.
