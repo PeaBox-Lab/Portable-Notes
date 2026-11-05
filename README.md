@@ -1,14 +1,14 @@
 
 # Portable Notes
 
-[![Release](https://img.shields.io/github/v/release/iwebslogtech/Portable-Notes)](https://github.com/iwebslogtech/Portable-Notes/releases)
+[![Release](https://img.shields.io/github/v/release/PeaBox-Lab/Portable-Notes)](https://github.com/PeaBox-Lab/Portable-Notes/releases)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/)
 [![Local First](https://img.shields.io/badge/storage-local--first-6b5cf5.svg)](#privacy-and-data)
 
 A private, local-first Markdown notes and personal knowledge-management application inspired by Obsidian, OneNote, Notepad++, and VS Code.
 
-**Repository:** https://github.com/iwebslogtech/Portable-Notes
+**Repository:** https://github.com/PeaBox-Lab/Portable-Notes
 
 ## What's new in 2.30.4
 
@@ -30,7 +30,7 @@ A private, local-first Markdown notes and personal knowledge-management applicat
 ## Run
 
 ```bash
-git clone https://github.com/iwebslogtech/Portable-Notes.git
+git clone https://github.com/PeaBox-Lab/Portable-Notes.git
 cd Portable-Notes
 python app.py
 ```
