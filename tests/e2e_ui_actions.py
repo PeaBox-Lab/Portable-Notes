@@ -18,12 +18,12 @@ def check(name,fn):
 try:
  for _ in range(50):
   try:
-   if req('/api/health')['version']=='2.30.1': break
+   if req('/api/health')['version']=='2.30.2': break
   except Exception: time.sleep(.1)
  else: raise RuntimeError('server did not start')
- check('App shell + cache-busted assets',lambda: ('v=2.30.1' in req('/',raw=True).decode()) or (_ for _ in ()).throw(AssertionError()))
+ check('App shell + cache-busted assets',lambda: ('v=2.30.2' in req('/',raw=True).decode()) or (_ for _ in ()).throw(AssertionError()))
  def cache_headers():
-  r=urlopen(BASE+'/static/app.js?v=2.30.1'); assert 'no-store' in r.headers.get('Cache-Control',''); r.read()
+  r=urlopen(BASE+'/static/app.js?v=2.30.2'); assert 'no-store' in r.headers.get('Cache-Control',''); r.read()
  check('No-cache UI assets',cache_headers)
  check('JavaScript syntax',lambda: subprocess.run(['node','--check',str(ROOT/'static/app.js')],check=True,capture_output=True))
  content='''# E2E Note\n- [ ] Foundation taskid: A due: 2026-11-01 baseline: 2026-11-01 estimate: 2h priority: high project: E2E milestone: Beta\n- [ ] Dependent taskid: B depends: A due: 2026-11-20 baseline: 2026-11-18 estimate: 3h project: E2E milestone: Beta\n- [x] Done taskid: C due: 2026-11-03 baseline: 2026-11-03 estimate: 1h project: E2E milestone: Beta\n'''
@@ -56,8 +56,8 @@ try:
  for label,token in [('Editor autosave','oninput=schedule'),('Command search','commandSearch'),('Keyboard shortcuts','addEventListener(\'keydown\''),('Saved search','pn-saved-searches'),('Find/replace','findReplace'),('Note history UI','showHistory')]:
   check(label,lambda token=token: (token in js) or (_ for _ in ()).throw(AssertionError('missing code')))
  failed=[r for r in results if r[1]=='FAIL']
- report=['# UI End-to-End Test Report: v2.30.1','',f'- Total checks: **{len(results)}**',f'- Passed: **{len(results)-len(failed)}**',f'- Failed: **{len(failed)}**','', '| Action | Result | Detail |','|---|---|---|']+[f'| {n} | {s} | {d} |' for n,s,d in results]
- (ROOT/'UI_TEST_REPORT_v2.30.1.md').write_text('\n'.join(report)+'\n')
+ report=['# UI End-to-End Test Report: v2.30.2','',f'- Total checks: **{len(results)}**',f'- Passed: **{len(results)-len(failed)}**',f'- Failed: **{len(failed)}**','', '| Action | Result | Detail |','|---|---|---|']+[f'| {n} | {s} | {d} |' for n,s,d in results]
+ (ROOT/'UI_TEST_REPORT_v2.30.2.md').write_text('\n'.join(report)+'\n')
  print('\n'.join(report[:7]));
  if failed:
   print(failed); sys.exit(1)

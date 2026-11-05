@@ -1,4 +1,4 @@
-# Portable Notes 2.30.1: UI Reliability Hotfix
+# Portable Notes 2.30.2: UI Reliability Hotfix
 
 This patch release fixes the remaining UI reliability problem and validates every menu action against a live local server.
 

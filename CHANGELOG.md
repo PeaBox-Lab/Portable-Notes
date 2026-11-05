@@ -1,6 +1,13 @@
 # Changelog
 
-## [2.30.1] - 2026-11-05
+## [2.30.2] - 2026-11-05
+### Fixed
+- Rebuilt Windows launch flow and clarified that `index.html` cannot run standalone.
+- Added direct-file and server-connection diagnostics.
+- Revalidated every control, command function, and API linkage.
+
+
+## [2.30.2] - 2026-11-05
 ### Fixed
 - Prevented stale broken JavaScript from being reused through versioned assets and no-cache headers.
 - Added visible async error handling for all command-palette actions.
@@ -8,13 +15,13 @@
 
 ### Testing
 - Added a 60-check live-server UI/end-to-end suite covering every menu action and primary control.
-- Added `UI_TEST_REPORT_v2.30.1.md` with the complete result inventory.
+- Added `UI_TEST_REPORT_v2.30.2.md` with the complete result inventory.
 
 ### Retained
 - All v2.30.0 architecture, security, APIs and cumulative functionality.
 
 
-## [2.30.1] - 2026-11-05
+## [2.30.2] - 2026-11-05
 ### Architecture
 - Added canonical immutable Task model and parser.
 - Centralized task metadata syntax.

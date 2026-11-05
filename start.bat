@@ -1,5 +1,2 @@
-
 @echo off
-cd /d "%~dp0"
-py app.py || python app.py
-pause
+call "%~dp0OPEN_PORTABLE_NOTES.bat"

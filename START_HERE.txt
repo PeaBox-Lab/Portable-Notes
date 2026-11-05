@@ -1,0 +1,11 @@
+PORTABLE NOTES 2.30.2 - START HERE
+
+Windows
+1. Extract the complete ZIP to a normal folder.
+2. Double-click OPEN_PORTABLE_NOTES.bat.
+3. Keep the terminal window open while using Portable Notes.
+4. Use the browser tab opened at http://127.0.0.1:8765/.
+
+Do NOT open static/index.html directly. It is only the interface asset and cannot work without the local Python server.
+
+If port 8765 is already in use, close older Portable Notes terminal windows and start again.
