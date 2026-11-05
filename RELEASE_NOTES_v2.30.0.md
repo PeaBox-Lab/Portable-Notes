@@ -1,4 +1,4 @@
-# Portable Notes 2.30.2: Architecture and Reliability
+# Portable Notes 2.30.3: Architecture and Reliability
 
 This cumulative stabilization release retains the v2.29 feature and API surface while addressing the architecture and test gaps identified in the v2.29 audit.
 

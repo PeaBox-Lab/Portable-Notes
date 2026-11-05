@@ -1,4 +1,4 @@
-PORTABLE NOTES 2.30.2 - START HERE
+PORTABLE NOTES 2.30.3 - START HERE
 
 Windows
 1. Extract the complete ZIP to a normal folder.

@@ -10,7 +10,7 @@ A private, local-first Markdown notes and personal knowledge-management applicat
 
 **Repository:** https://github.com/iwebslogtech/Portable-Notes
 
-## What's new in 2.30.2
+## What's new in 2.30.3
 
 - Persistent multi-note tabs and a smoother writing workflow
 - Find and replace with `Ctrl+F`
@@ -153,5 +153,5 @@ Use **Execution readiness** to combine metadata quality, dependencies, overdue s
 ## 2.30 architecture and reliability
 The v2.30 stabilization release centralizes task syntax in `core/tasks.py`, adds domain/service/API package boundaries, expands automated coverage, restores missing historical release documentation, and retains the existing v2.29 routes and cumulative features.
 
-## 2.30.2 UI reliability
+## 2.30.3 UI reliability
 This hotfix prevents stale UI assets, adds visible command errors, and includes a reproducible 60-check live-server end-to-end suite. Run `python tests/e2e_ui_actions.py` from the application folder to repeat it.
