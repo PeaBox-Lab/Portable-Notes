@@ -31,6 +31,26 @@ if (location.protocol === 'file:') {
     <a href="/api/export" title="Export vault as ZIP backup">⇩</a>
   </aside>
 
+  <!-- ───────────────────────── 3 · History ───────────────────────── -->
+  <div class="modal" id="historyDiffModal" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:1000;background:#fff;padding:20px;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,0.15);">
+    <h3>Compare History Snapshots</h3>
+    <div class="diff-panel">
+      <div class="diff-header">
+        <label>Snapshot 1</label>
+        <input type="text" id="diff1" class="diff-id" value="">
+      </div>
+      <div class="diff-header">
+        <label>Snapshot 2</label>
+        <input type="text" id="diff2" class="diff-id" value="">
+      </div>
+      <div class="diff-content">
+        <div id="diff1-content"></div>
+        <div id="diff2-content"></div>
+        <div id="diff-segments"></div>
+      </div>
+    </div>
+  </div>
+
   <!-- ───────────────────────── 2 · Sidebar ───────────────────────── -->
   <aside class="nav" aria-label="Notes navigation">
     <div class="brand"><b>Portable Notes</b><small>MARKDOWN · PRIVATE · PORTABLE</small></div>
@@ -90,6 +110,8 @@ if (location.protocol === 'file:') {
       <button type="button" data-cmd="date" title="Today's date">Date</button>
       <button type="button" data-cmd="wiki" title="Wiki link">[[ ]]</button>
       <button type="button" data-cmd="attach" title="Attach file (uploads to vault/Attachments)">Attach</button>
+      <button type="button" data-cmd="orphans" title="Find orphan attachments not referenced by any note">Orphans</button>
+      <button type="button" data-cmd="diff" title="Compare note history snapshots">Diff</button>
     </div>
 
     <div id="tabs" class="tabs"></div>

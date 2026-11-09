@@ -102,3 +102,12 @@
 
 ## 2.30 Architecture and Reliability ✅
 - Canonical task model/parser, shared syntax, package boundaries, repository layer, typed errors, expanded tests, and documentation continuity delivered.
+
+## 2.31 Corporate UI Rebuild ✅
+- Token-driven design system, dialogs replacing alert/prompt/confirm, editor toolbar, preview task toggling, outline-to-caret jumps, attachment flow, note-list sorting, collapsible folder tree, report/ask/find-replace/history dialogs, command palette groups, copy/duplicate note commands.
+
+## 2.32 Version Consistency & Reliability ✅
+- All version references aligned to 2.32.0 across backend, config, UI, package metadata, and E2E tests
+- CI/CD pipeline added with GitHub Actions (Python 3.9-3.12, Ubuntu/Windows)
+- 24 unit tests + 68 E2E checks all passing
+- Audit report documenting version consistency verification

@@ -1,5 +1,26 @@
 # Changelog
 
+## [2.32.0] - 2026-11-10
+### Added
+- Version consistency aligned across backend, config, UI, package metadata, and E2E tests
+- Startup banner displays version 2.32.0
+- E2E test suite validates `2.32.0` in health endpoint and cache-busted assets
+- Dedicated release notes `RELEASE_NOTES_v2.32.0.md`
+- Audit report `AUDIT_REPORT.md` documenting version consistency verification
+
+### Fixed
+- Removed stale `2.31.0` version references from all critical files
+- Backend startup banner updated from `2.31.0` to `2.32.0`
+
+### Changed
+- All version references raised to 2.32.0 in `app.py`, `core/vault.py`, `api/system.py`, `static/index.html`, `static/style.css`, `static/app.js`, `data/config.json`, `pyproject.toml`, `tests/e2e_ui_actions.py`, `README.md`
+
+### Testing
+- 24/24 unit tests pass
+- 68/68 live UI/action E2E checks pass
+- All Python modules compile cleanly
+- Version consistency audit passes across all critical files
+
 ## [2.31.0] - 2026-11-09
 ### Added
 - Token-driven corporate design system in `static/style.css` (light/dark/auto theme).

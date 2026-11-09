@@ -2,7 +2,7 @@
 #!/usr/bin/env python3
 # Portable Notes 2.32.0: modular backend with api/ route modules.
 from __future__ import annotations
-import argparse, hashlib, html, io, json, mimetypes, os, re, shutil, sqlite3, threading, time, webbrowser, zipfile
+import argparse, difflib, hashlib, html, io, json, mimetypes, os, re, shutil, sqlite3, threading, time, webbrowser, zipfile
 from datetime import datetime, timedelta, timezone
 from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
@@ -99,6 +99,37 @@ def rebuild():
         if found: db.execute('DELETE FROM notes WHERE path NOT IN (%s)'%','.join('?'*len(found)),found)
         else: db.execute('DELETE FROM notes')
     return len(found)
+
+def orphan_attachments():
+    """Find attachments not referenced by any note."""
+    vault_path = vault()
+    attach_dir = vault_path / "Attachments"
+    if not attach_dir.exists():
+        return []
+    ref_attachments = set()
+    with sqlite3.connect(DB) as db:
+        rows = db.execute("SELECT path, content FROM notes").fetchall()
+        for row in rows:
+            content = row[1] or ""
+            import re
+            for m in re.finditer(r'!\[.*?\]\((.+?)\)', content):
+                ref_attachments.add(m.group(1))
+            for m in re.finditer(r'!\[\[([^\]]+)\]\]', content):
+                ref_attachments.add(m.group(1))
+    attach_files = {}
+    for p in attach_dir.rglob("*"):
+        if p.is_file():
+            name = p.name
+            if name not in ref_attachments:
+                attach_files[name] = {
+                    "path": p.relative_to(vault_path).as_posix(),
+                    "name": name,
+                    "size": p.stat().st_size,
+                    "age_days": (datetime.now() - datetime.fromtimestamp(p.stat().st_mtime)).days,
+                }
+    return sorted(attach_files.values(), key=lambda x: x["age_days"], reverse=True)
+
+
 def refresh():
     init_db()
     with sqlite3.connect(DB) as db: known={r[0]:r[1] for r in db.execute('SELECT path,mtime FROM notes')}
@@ -797,6 +828,20 @@ class Handler(SimpleHTTPRequestHandler):
                 rel=norm_rel(q.get('path',[''])[0]); hid=safe_name(q.get('id',[''])[0]); hp=history_dir()/hashlib.sha1(rel.encode()).hexdigest()[:12]/(hid+'.md')
                 if not hp.exists(): return self.fail('History item not found',404)
                 return self.send_json({'id':hid,'content':hp.read_text(encoding='utf-8',errors='replace')})
+            if u.path=='/api/history/diff':
+                rel=norm_rel(q.get('path',[''])[0]); hid1=safe_name(q.get('id1',[''])[0]); hid2=safe_name(q.get('id2',[''])[0])
+                hp1=history_dir()/hashlib.sha1(rel.encode()).hexdigest()[:12]/(hid1+'.md'); hp2=history_dir()/hashlib.sha1(rel.encode()).hexdigest()[:12]/(hid2+'.md')
+                if not hp1.exists(): return self.fail('History item not found',404)
+                if not hp2.exists(): return self.fail('History item not found',404)
+                t1=hp1.read_text(encoding='utf-8',errors='replace'); t2=hp2.read_text(encoding='utf-8',errors='replace')
+                sm=difflib.SequenceMatcher(None,t1,t2,autojunk=False)
+                diff={'id1':hid1,'id2':hid2,'path':rel,'from':t1,'to':t2,'segments':[]}
+                for tag,i1,i2,j1,j2 in sm.get_opcodes():
+                    if tag=='equal': continue
+                    diff['segments'].append({'type':tag,'from_line':i1+1,'to_line':i2+1,'old_lines':t1.splitlines()[i1:i2],'new_lines':t2.splitlines()[j1:j2]})
+                return self.send_json(diff)
+            if u.path=='/api/orphans':
+                return self.send_json(orphan_attachments())
             if u.path=='/api/export':
                 mem=io.BytesIO()
                 with zipfile.ZipFile(mem,'w',zipfile.ZIP_DEFLATED) as z:

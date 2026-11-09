@@ -231,6 +231,46 @@ def rebuild():
     return len(found)
 
 
+def orphan_attachments():
+    """Find attachments not referenced by any note.
+
+    Returns list of dicts with 'path', 'name', 'size', 'age_days'.
+    """
+    vault_path = vault()
+    attach_dir = vault_path / "Attachments"
+    if not attach_dir.exists():
+        return []
+
+    # Build a set of attachment names referenced by notes
+    ref_attachments = set()
+    with sqlite3.connect(DATA / "index.db") as db:
+        rows = db.execute("SELECT path, content FROM notes").fetchall()
+        for row in rows:
+            content = row[1] or ""
+            import re
+            # Markdown image: ![alt](path) or ![path]
+            for m in re.finditer(r'!\[.*?\]\((.+?)\)', content):
+                ref_attachments.add(m.group(1))
+            # Also handle ![[wiki links]] with attachments
+            for m in re.finditer(r'!\[\[([^\]]+)\]\]', content):
+                ref_attachments.add(m.group(1))
+
+    attach_files = {}
+    for p in attach_dir.rglob("*"):
+        if p.is_file():
+            name = p.name
+            if name not in ref_attachments:
+                attach_files[name] = {
+                    "path": p.relative_to(vault_path).as_posix(),
+                    "name": name,
+                    "size": p.stat().st_size,
+                    "age_days": (datetime.now() - datetime.fromtimestamp(p.stat().st_mtime)).days,
+                }
+
+    result = sorted(attach_files.values(), key=lambda x: x["age_days"], reverse=True)
+    return result
+
+
 def refresh():
     init_db()
     with sqlite3.connect(DB) as db:
