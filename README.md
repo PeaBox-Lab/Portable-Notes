@@ -10,7 +10,32 @@ A private, local-first Markdown notes and personal knowledge-management applicat
 
 **Repository:** https://github.com/PeaBox-Lab/Portable-Notes
 
-## What's new in 2.30.4
+## What's new in 2.31.0
+
+- Corporate UI rebuild: token-driven design system (slate + corporate blue), refined rail, cards, tabs, dialogs, and dark theme with depth
+- Every blocking `alert()`/`prompt()`/`confirm()` dialog replaced with proper in-app dialogs:
+  - Find & replace dialog with locate / replace once / replace all and match feedback
+  - Note history dialog with one-click snapshot restore
+  - Report dialogs with copy-to-clipboard for all 25 task and project intelligence commands
+  - Promise-based input/confirm dialogs (`ask`)
+- Editor toolbar (bold, italic, headings, lists, tasks, quote, code, table, rule, date, wiki link) plus `Ctrl+B` / `Ctrl+I` and Tab-to-indent
+- Clickable task checkboxes in the rendered preview toggle the Markdown source
+- Outline headings jump into the editor caret or the matching preview heading
+- Collapsible folder tree, note-list sorting (updated / A→Z / Z→A), saved-search shortcut button
+- Attachments: upload from the UI and insert vault-relative links
+- Row-level note metadata: relative timestamps, tag chips, pin/favorite markers
+- Command palette grouped by section with arrow-key navigation and Enter to run
+- View-mode cycle fixed (Edit → Split → Preview) with correct editor/preview visibility
+- Renaming a note no longer leaves dead persistent tabs
+- Word / character / reading-time status row
+- Theme cycle light → dark → auto (follows OS preference)
+
+### Testing
+
+- 2.31.0 UI/action E2E suite regenerated: **report below, all checks green.**
+
+<details>
+<summary>What's new in 2.30.4</summary>
 
 - Persistent multi-note tabs and a smoother writing workflow
 - Find and replace with `Ctrl+F`
@@ -26,6 +51,8 @@ A private, local-first Markdown notes and personal knowledge-management applicat
 - Portable Markdown ZIP export
 - Internal recoverable trash
 - Updated GitHub community and release metadata
+
+</details>
 
 ## Run
 

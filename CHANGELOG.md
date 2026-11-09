@@ -1,5 +1,28 @@
 # Changelog
 
+## [2.31.0] - 2026-11-09
+### Added
+- Token-driven corporate design system in `static/style.css` (light/dark/auto theme).
+- Editor toolbar with formatting insert helpers; `Ctrl+B` / `Ctrl+I`; Tab indents.
+- Clickable checkbox in preview toggles the Markdown source task.
+- Outline-to-caret/preview heading jumps.
+- Attach-file flow from the UI (uploads to `vault/Attachments`).
+- Note-list sorting and collapsible folder tree (state persisted).
+- Report + ask + find/replace + history dialogs; palette groups and keyboard navigation.
+- `Copy note markdown`, `Duplicate current note` commands.
+
+### Fixed
+- View-mode cycle now correctly hides the editor in Preview and matches its button label.
+- Renaming a note now remaps persistent tabs instead of leaving dead entries.
+- Deleting a note clears its tab reliably.
+
+### Changed
+- All blocking `alert`/`prompt`/`confirm` interactions replaced with in-app dialogs.
+- Cache-bust and health version raised to 2.31.0; UI E2E expectations updated.
+
+### Testing
+- 60+ live UI/action checks re-run (see `UI_TEST_REPORT_v2.31.0.md`).
+
 ## [2.30.4] - 2026-11-05
 ### Fixed
 - Independent scrolling for every long UI pane and dialog.
