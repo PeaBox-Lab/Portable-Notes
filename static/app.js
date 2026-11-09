@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════════════
-   Portable Notes 2.31.0 — application script (vanilla JS, no build step)
+   Portable Notes 2.32.0 — application script (vanilla JS, no build step)
    Sections:
      0. Utilities & state        5. View modes
      1. Markdown renderer        6. Editor toolbar & typing helpers
@@ -1052,4 +1052,4 @@ load().catch(function (e) {
   document.body.insertAdjacentHTML('afterbegin', '<div class="startup-error"><b>Portable Notes server connection failed.</b> Start the app with OPEN_PORTABLE_NOTES.bat and do not open index.html directly.<br>' + esc(e.message) + '</div>');
 });
 
-window.PortableNotesUI = { commands: commands.map(x => x.n), runCommand, version: '2.31.0' };
+window.PortableNotesUI = { commands: commands.map(x => x.n), runCommand, version: '2.32.0' };

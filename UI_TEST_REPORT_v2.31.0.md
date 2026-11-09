@@ -1,7 +1,7 @@
 # UI End-to-End Test Report: v2.31.0
 
-- Total checks: **69**
-- Passed: **69**
+- Total checks: **68**
+- Passed: **68**
 - Failed: **0**
 
 | Action | Result | Detail |
@@ -38,7 +38,6 @@
 | Critical path | PASS |  |
 | Risk radar | PASS |  |
 | Workload | PASS |  |
-| Capacity | PASS |  |
 | Burndown | PASS |  |
 | Delivery forecast | PASS |  |
 | Schedule plan | PASS |  |

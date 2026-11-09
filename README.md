@@ -10,7 +10,7 @@ A private, local-first Markdown notes and personal knowledge-management applicat
 
 **Repository:** https://github.com/PeaBox-Lab/Portable-Notes
 
-## What's new in 2.31.0
+## What's new in 2.32.0
 
 - Corporate UI rebuild: token-driven design system (slate + corporate blue), refined rail, cards, tabs, dialogs, and dark theme with depth
 - Every blocking `alert()`/`prompt()`/`confirm()` dialog replaced with proper in-app dialogs:
