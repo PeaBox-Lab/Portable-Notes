@@ -1,6 +1,6 @@
 
 #!/usr/bin/env python3
-# Portable Notes 2.31.0: corporate UI rebuild.
+# Portable Notes 2.32.0: modular backend with api/ route modules.
 from __future__ import annotations
 import argparse, hashlib, html, io, json, mimetypes, os, re, shutil, sqlite3, threading, time, webbrowser, zipfile
 from datetime import datetime, timedelta, timezone
@@ -28,7 +28,7 @@ def norm_rel(value):
     return value
 
 def load_cfg():
-    default={'vault':str(DEFAULT_VAULT),'theme':'system','version':'2.31.0'}
+    default={'vault':str(DEFAULT_VAULT),'theme':'system','version':'2.32.0'}
     if CONFIG.exists():
         try: default.update(json.loads(CONFIG.read_text(encoding='utf-8')))
         except Exception: pass
