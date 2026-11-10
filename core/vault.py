@@ -50,7 +50,7 @@ def norm_rel(value):
 
 
 def load_cfg():
-    default = {"vault": str(DEFAULT_VAULT), "theme": "system", "version": "3.0.0"}
+    default = {"vault": str(DEFAULT_VAULT), "theme": "system", "version": "3.1.0"}
     if CONFIG.exists():
         try:
             default.update(json.loads(CONFIG.read_text(encoding="utf-8")))

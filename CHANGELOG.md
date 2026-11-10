@@ -1,5 +1,26 @@
 # Changelog
 
+## [3.1.0] - 2026-11-10 ("Constellation")
+### Added
+- Board cards can now toggle a task done/not-done in place (`POST /api/task/toggle`), with a snapshot taken before each toggle; completing a task moves the card between lanes instantly
+- `.gitignore` (Python caches, local index, editor folders); cached bytecode and the disposable `data/index.db` untracked from git
+
+### Fixed
+- **Task toggle hung the server**: the handler read the request body twice (`read_body` called after the handler had already consumed it) — requests blocked forever; also fixed board line numbers to index frontmatter-stripped body lines (was off by the frontmatter length) and to bump `updated` while preserving favorites/pins
+- `front()` coerced the string `'false'` for `favorite`/`pinned` to `True` — any frontmatter rewrite flipped both flags on; now uses `boolv()`
+- Opening/switching notes no longer silently rewrites the current note when it is clean (timestamp churn removed)
+- Related-notes and backlinks network calls are now debounced (250 ms) instead of firing on every keystroke
+- Knowledge graph no longer repaints on every window mouse move (repaints only while dragging or when hover changes)
+- `tests/e2e_ui_actions.py` no longer points the user's real `data/config.json` at a temp vault — config is backed up and restored around the run
+
+### Changed
+- Version raised to 3.1.0 across backend, config, UI, package metadata, launcher and tests
+- E2E suite validates `3.1.0`; 69/69 checks pass (see `UI_TEST_REPORT_v3.1.0.md`)
+
+### Testing
+- 24/24 unit tests pass
+- 69/69 live UI/action E2E checks pass
+
 ## [3.0.0] - 2026-11-10 ("Nebula")
 ### Added
 - Multi-view workspace with activity-rail switching: Notes / Board / Graph / Tags / Trash (`Ctrl+Shift+1–5`)

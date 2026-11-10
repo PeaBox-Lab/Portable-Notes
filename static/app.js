@@ -1,4 +1,4 @@
-/* Portable Notes 3.0.0 "Nebula" - application script (vanilla JS)
+/* Portable Notes 3.1.0 "Constellation" - application script (vanilla JS)
    Sections: 0 utilities | 1 markdown | 2 dialogs | 3 notes | 4 open/save | 5 view modes
    6 toolbar | 7 find/history | 7b orphans/diff | 7c views | 7d board/graph/tags/trash
    7e quick capture/templates/import/slash | 8 task intelligence | 9 palette/bindings/init
@@ -259,7 +259,7 @@ const persistTabs = () => localStorage.setItem('pn-tabs', JSON.stringify(st.tabs
 /* ── 4 · Open / save / derive ───────────────────────────────────────── */
 async function open(path) {
   setView('notes');
-  await save();
+  if (st.dirty) await save();
   if (!st.tabs.includes(path)) {
     st.tabs.push(path); st.tabs = st.tabs.slice(-8); persistTabs(); renderTabs();
   }
@@ -336,6 +336,12 @@ function derive() {
     '<span class="jump" data-title="' + esc(x) + '">' + esc(x) + '</span>').join('') || '<div class="empty">No links</div>';
   $$('[data-title],.wikilink').forEach(x => x.onclick = () => byTitle(x.dataset.title));
 
+  // Network lookups (backlinks + related) are debounced — derive() runs on every keystroke
+  clearTimeout(st.deriveTimer);
+  st.deriveTimer = setTimeout(fetchDeriveAPIs, 250);
+}
+
+function fetchDeriveAPIs() {
   if (st.cur) api('/api/backlinks?title=' + encodeURIComponent(st.cur.title)).then(bs => {
     $('#backlinks').innerHTML = bs.map(x =>
       '<span class="jump" data-path="' + esc(x.path) + '">' + esc(x.title) + '</span>').join('') || '<div class="empty">No backlinks</div>';
@@ -687,17 +693,41 @@ async function renderBoard() {
     const items = b[k] || [];
     return '<div class="bcol' + (k === 'done' ? ' done' : '') + '"><h3>' + label + '<span class="n">' + items.length + '</span></h3><div class="bcol-body">' +
       (items.length ? items.map(x =>
-        '<button class="bcard p-' + esc(x.priority || 'normal') + (x.done ? ' done' : '') + '" data-path="' + esc(x.path) + '" title="' + esc(x.note + ' · line ' + x.line) + '">' +
-        '<p class="t">' + esc(stripTaskMeta(x.text) || x.text) + '</p>' +
+        '<div class="bcard p-' + esc(x.priority || 'normal') + (x.done ? ' done' : '') + '" data-path="' + esc(x.path) + '" role="button" tabindex="0" title="' + esc(x.note + ' · line ' + x.line) + '">' +
+        '<div class="bcard-row"><button class="bcheck' + (x.done ? ' on' : '') + '" data-toggle="' + esc(x.path) + '||' + x.line + '" title="' + (x.done ? 'Mark not done' : 'Mark done') + '" aria-pressed="' + (x.done ? 'true' : 'false') + '">✓</button>' +
+        '<p class="t">' + esc(stripTaskMeta(x.text) || x.text) + '</p></div>' +
         '<div class="meta">' +
         (x.priority && x.priority !== 'normal' ? '<span>!' + esc(x.priority) + '</span>' : '') +
         (x.due ? '<span class="due' + (k === 'overdue' ? ' over' : '') + '">' + esc(x.due) + '</span>' : '') +
         (x.project && x.project !== 'Unassigned' ? '<span>' + esc(x.project) + '</span>' : '') +
-        '<span class="grow"></span><span>' + esc(x.note) + '</span></div></button>').join('')
+        '<span class="grow"></span><span>' + esc(x.note) + '</span></div></div>').join('')
         : '<div class="empty">Nothing here</div>') +
       '</div></div>';
   }).join('');
-  $$('#board .bcard').forEach(c => c.onclick = () => { setView('notes'); open(c.dataset.path); });
+  $$('#board .bcard').forEach(c => {
+    const go = () => { setView('notes'); open(c.dataset.path); };
+    c.onclick = go;
+    c.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } };
+  });
+  $$('#board .bcheck').forEach(btn => btn.onclick = async e => {
+    e.stopPropagation();
+    const [p, ln] = btn.dataset.toggle.split('||');
+    btn.disabled = true;
+    try {
+      const r = await api('/api/task/toggle', { method: 'POST', body: JSON.stringify({ path: p, line: +ln }) });
+      toast(r.done ? 'Task completed' : 'Task reopened');
+      if (st.cur && st.cur.path === p && !st.dirty) {
+        const n = await api('/api/note?path=' + encodeURIComponent(p));
+        st.cur = n;
+        $('#editor').value = n.content;
+        derive();
+      }
+      renderBoard();
+    } catch (err) {
+      toast('Toggle failed: ' + err.message);
+      btn.disabled = false;
+    }
+  });
 }
 $('#boardRefresh').onclick = renderBoard;
 $('#boardProject').onchange = renderBoard;
@@ -803,26 +833,38 @@ $('#graphCanvas').addEventListener('mousedown', e => {
 window.addEventListener('mousemove', e => {
   if (!gSim) return;
   const canvas = $('#graphCanvas');
-  const p = graphPos(e);
-  if (gSim.drag && gSim.drag !== 'pan') {
-    gSim.drag.x = p.x; gSim.drag.y = p.y; gSim.moved += Math.abs(e.movementX) + Math.abs(e.movementY);
-    paintGraph(); return;
+  // Dragging a node or panning the canvas — always repaint
+  if (gSim.drag) {
+    const p = graphPos(e);
+    if (gSim.drag !== 'pan') {
+      gSim.drag.x = p.x; gSim.drag.y = p.y;
+    } else {
+      gSim.ox += e.clientX - gSim.pan.x; gSim.oy += e.clientY - gSim.pan.y;
+      gSim.pan = { x: e.clientX, y: e.clientY };
+    }
+    gSim.moved += Math.abs(e.movementX) + Math.abs(e.movementY);
+    paintGraph();
+    return;
   }
-  if (gSim.drag === 'pan') {
-    gSim.ox += e.clientX - gSim.pan.x; gSim.oy += e.clientY - gSim.pan.y;
-    gSim.pan = { x: e.clientX, y: e.clientY }; gSim.moved += Math.abs(e.movementX) + Math.abs(e.movementY);
-    paintGraph(); return;
+  // Hover path — only respond over the canvas and only repaint on change
+  if (e.target !== canvas) {
+    if (gSim.hover) { gSim.hover = null; $('#graphTip').hidden = true; paintGraph(); }
+    return;
   }
-  const hit = graphHit(p.x, p.y);
-  gSim.hover = hit;
-  const tip = $('#graphTip');
+  const p = graphPos(e), hit = graphHit(p.x, p.y), tip = $('#graphTip');
+  if (hit !== gSim.hover) {
+    gSim.hover = hit;
+    paintGraph();
+  }
   if (hit) {
     tip.hidden = false;
     tip.textContent = hit.title + (hit.folder ? '  ·  ' + hit.folder : '');
     tip.style.left = (p.mx + 14) + 'px'; tip.style.top = (p.my + 10) + 'px';
     canvas.style.cursor = 'pointer';
-  } else { tip.hidden = true; canvas.style.cursor = 'grab'; }
-  paintGraph();
+  } else {
+    tip.hidden = true;
+    canvas.style.cursor = 'grab';
+  }
 });
 window.addEventListener('mouseup', () => {
   if (!gSim) return;
@@ -1528,4 +1570,4 @@ load().catch(function (e) {
   document.body.insertAdjacentHTML('afterbegin', '<div class="startup-error"><b>Portable Notes server connection failed.</b> Start the app with OPEN_PORTABLE_NOTES.bat and do not open index.html directly.<br>' + esc(e.message) + '</div>');
 });
 
-window.PortableNotesUI = { commands: commands.map(x => x.n), runCommand, version: '3.0.0' };
+window.PortableNotesUI = { commands: commands.map(x => x.n), runCommand, version: '3.1.0' };

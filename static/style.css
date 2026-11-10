@@ -255,10 +255,18 @@ header button.on{background:var(--accent-soft);color:var(--accent);border-color:
 }
 .bcol h3 .n{margin-left:auto;background:var(--panel);border:1px solid var(--line);border-radius:99px;padding:0 8px;font-size:10px}
 .bcol-body{display:flex;flex-direction:column;gap:8px;padding:10px;overflow-y:auto}
-.bcard{
+.board .bcard{
   background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--faint);
   border-radius:var(--r-m);padding:9px 10px;box-shadow:var(--shadow-1);cursor:pointer;text-align:left;
 }
+.bcard-row{display:flex;gap:8px;align-items:flex-start}
+.bcard-row .t{flex:1}
+.bcheck{
+  flex:0 0 auto;width:20px;height:20px;border-radius:50%;border:1.5px solid var(--line-strong);
+  background:transparent;color:transparent;font-size:11px;line-height:1;cursor:pointer;display:grid;place-items:center;padding:0;
+}
+.bcheck:hover{border-color:var(--accent);color:var(--accent-soft)}
+.bcheck.on{background:var(--ok);border-color:var(--ok);color:#fff}
 .bcard:hover{border-color:var(--accent);transform:translateY(-1px);box-shadow:var(--shadow-2)}
 .bcard.p-high{border-left-color:var(--danger)}
 .bcard.p-medium{border-left-color:var(--warn)}

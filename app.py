@@ -1,6 +1,6 @@
 
 #!/usr/bin/env python3
-# Portable Notes 3.0.0: modular backend with api/ route modules.
+# Portable Notes 3.1.0: modular backend with api/ route modules.
 from __future__ import annotations
 import argparse, difflib, hashlib, html, io, json, mimetypes, os, re, shutil, sqlite3, threading, time, webbrowser, zipfile
 from datetime import datetime, timedelta, timezone
@@ -28,7 +28,7 @@ def norm_rel(value):
     return value
 
 def load_cfg():
-    default={'vault':str(DEFAULT_VAULT),'theme':'system','version':'3.0.0'}
+    default={'vault':str(DEFAULT_VAULT),'theme':'system','version':'3.1.0'}
     if CONFIG.exists():
         try: default.update(json.loads(CONFIG.read_text(encoding='utf-8')))
         except Exception: pass
@@ -62,7 +62,7 @@ def parse_front(text):
 
 def front(meta,body):
     tags=meta.get('tags',[]); tags=tags if isinstance(tags,list) else [x.strip() for x in str(tags).split(',') if x.strip()]
-    lines=['---',f"id: {meta.get('id','')}",f"title: {meta.get('title','Untitled')}",f"created: {meta.get('created',iso())}",f"updated: {meta.get('updated',iso())}",'tags:']+[f'  - {x}' for x in tags]+[f"favorite: {str(bool(meta.get('favorite',False))).lower()}",f"pinned: {str(bool(meta.get('pinned',False))).lower()}",'---','']
+    lines=['---',f"id: {meta.get('id','')}",f"title: {meta.get('title','Untitled')}",f"created: {meta.get('created',iso())}",f"updated: {meta.get('updated',iso())}",'tags:']+[f'  - {x}' for x in tags]+[f"favorite: {str(boolv(meta.get('favorite'))).lower()}",f"pinned: {str(boolv(meta.get('pinned'))).lower()}",'---','']
     return '\n'.join(lines)+body.lstrip('\n')
 
 def note_id(rel): return hashlib.sha1(rel.encode()).hexdigest()[:16]
@@ -891,13 +891,13 @@ class Handler(SimpleHTTPRequestHandler):
                 with zipfile.ZipFile(mem,'w',zipfile.ZIP_DEFLATED) as z:
                     for p in vault().rglob('*'):
                         if p.is_file() and '.portable-notes' not in p.parts: z.write(p,p.relative_to(vault()))
-                    z.writestr('portable-notes-backup.json',json.dumps({'version':'3.0.0','created':iso(),'vault':str(vault())},indent=2))
+                    z.writestr('portable-notes-backup.json',json.dumps({'version':'3.1.0','created':iso(),'vault':str(vault())},indent=2))
                 raw=mem.getvalue(); self.send_response(200); self.send_header('Content-Type','application/zip'); self.send_header('Content-Disposition','attachment; filename="portable-notes-vault-backup.zip"'); self.send_header('Content-Length',str(len(raw))); self.end_headers(); return self.wfile.write(raw)
             if u.path=='/api/attachment':
                 rel=norm_rel(q.get('path',[''])[0]); p=md_path(rel)
                 if not p.exists() or p.is_dir(): return self.fail('Attachment not found',404)
                 raw=p.read_bytes(); self.send_response(200); self.send_header('Content-Type',mimetypes.guess_type(p.name)[0] or 'application/octet-stream'); self.send_header('Content-Length',str(len(raw))); self.end_headers(); return self.wfile.write(raw)
-            if u.path=='/api/health': return self.send_json({'ok':True,'version':'3.0.0','vault':str(vault()),'notes':rebuild()})
+            if u.path=='/api/health': return self.send_json({'ok':True,'version':'3.1.0','vault':str(vault()),'notes':rebuild()})
             if u.path=='/': self.path='/static/index.html'
             return super().do_GET()
         except Exception as e: return self.fail(e)
@@ -917,6 +917,25 @@ class Handler(SimpleHTTPRequestHandler):
                 rel=p.relative_to(vault()).as_posix(); t=iso(); p.write_text(front({'id':note_id(rel),'title':title,'created':t,'updated':t,'tags':b.get('tags',[])},b.get('content','')),encoding='utf-8'); return self.send_json(index_note(p),201)
             if self.path=='/api/folder':
                 p=md_path(norm_rel(b.get('path','New Folder'))); p.mkdir(parents=True,exist_ok=True); return self.send_json({'ok':True,'path':p.relative_to(vault()).as_posix()},201)
+            if self.path=='/api/task/toggle':
+                rel=norm_rel(b.get('path','')); p=md_path(rel)
+                if not p.exists(): return self.fail('Note not found',404)
+                try: ln=int(b.get('line',0))
+                except Exception: return self.fail('line must be an integer',400)
+                if ln<1: return self.fail('line out of range',400)
+                text=p.read_text(encoding='utf-8',errors='replace'); meta,body=parse_front(text); lines=body.splitlines()
+                if ln>len(lines): return self.fail('line out of range',400)
+                m=TASK_LINE_RE.match(lines[ln-1])
+                if not m: return self.fail('not a task line',400)
+                mark=m.group(1); newmark=' ' if mark.lower()=='x' else 'x'
+                lines[ln-1]=lines[ln-1].replace('['+mark+']','['+newmark+']',1)
+                snapshot(rel,text)
+                meta=dict(meta); meta['updated']=iso()
+                meta['favorite']=boolv(meta.get('favorite')); meta['pinned']=boolv(meta.get('pinned'))
+                newbody='\n'.join(lines)
+                if body.endswith('\n') or text.endswith('\n'): newbody+='\n'
+                p.write_text(front(meta,newbody),encoding='utf-8'); index_note(p)
+                return self.send_json({'ok':True,'done':newmark=='x'})
             if self.path=='/api/trash/restore':
                 name=safe_name(b.get('name',''),''); trash=vault()/'.portable-notes'/'trash'; src=trash/name
                 if not name or not src.exists() or not src.is_file(): return self.fail('Trash item not found',404)
@@ -967,7 +986,7 @@ def main():
     global CFG
     if args.vault: CFG['vault']=str(Path(args.vault).expanduser().resolve()); save_cfg()
     seed(); rebuild(); os.chdir(ROOT); server=ThreadingHTTPServer((HOST,args.port),Handler); url=f'http://{HOST}:{args.port}'
-    print(f'Portable Notes 3.0.0 running at {url}\nVault: {vault()}\nPress Ctrl+C to stop.')
+    print(f'Portable Notes 3.1.0 running at {url}\nVault: {vault()}\nPress Ctrl+C to stop.')
     if not args.no_browser: threading.Timer(.5,lambda:webbrowser.open(url)).start()
     try:server.serve_forever()
     except KeyboardInterrupt:print('\nStopped.')

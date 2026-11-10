@@ -13,6 +13,10 @@ from urllib.parse import quote
 ROOT = Path(__file__).resolve().parents[1]
 PORT = '8913'
 BASE = 'http://127.0.0.1:' + PORT
+# The e2e server is pointed at a throwaway vault, but `app.py --vault` persists that
+# choice into the user's real config.json — snapshot it here and restore it in `finally`.
+CONFIG = ROOT / 'data' / 'config.json'
+config_backup = CONFIG.read_bytes() if CONFIG.exists() else None
 vault = Path(tempfile.mkdtemp(prefix='pn-e2e-'))
 proc = subprocess.Popen(
     [sys.executable, str(ROOT / 'app.py'), '--no-browser', '--port', PORT, '--vault', str(vault)],
@@ -38,17 +42,17 @@ def check(name, fn):
 try:
     for _ in range(50):
         try:
-            if req('/api/health')['version'] == '3.0.0':
+            if req('/api/health')['version'] == '3.1.0':
                 break
         except Exception:
             time.sleep(.1)
     else:
         raise RuntimeError('server did not start')
 
-    check('App shell + cache-busted assets', lambda: ('v=3.0.0' in req('/', raw=True).decode()))
+    check('App shell + cache-busted assets', lambda: ('v=3.1.0' in req('/', raw=True).decode()))
 
     def cache_headers():
-        r = urlopen(BASE + '/static/app.js?v=3.0.0')
+        r = urlopen(BASE + '/static/app.js?v=3.1.0')
         assert 'no-store' in r.headers.get('Cache-Control', '')
         r.read()
 
@@ -116,6 +120,13 @@ try:
     attachment = req('/api/attachment/upload?name=e2e.txt', 'POST', b'attachment', raw=False)
     check('Attachment upload', lambda: attachment['ok'] or (lambda: (_ for _ in ()).throw(AssertionError()))())
     check('Attachment download', lambda: req('/api/attachment?path=' + quote(attachment['path']), raw=True))
+    def toggle_task():
+        r = req('/api/task/toggle', 'POST', {'path': path, 'line': 2})
+        assert r['done'] is True
+        r = req('/api/task/toggle', 'POST', {'path': path, 'line': 2})
+        assert r['done'] is False
+    check('Board task toggle (done/undone)', toggle_task)
+
     check('Delete note', lambda: req('/api/note?path=' + qp, 'DELETE'))
 
     # Static/local-only controls are validated by source-level wiring plus JS syntax.
@@ -164,7 +175,7 @@ try:
 
     failed = [r for r in results if r[1] == 'FAIL']
     report = [
-        '# UI End-to-End Test Report: v3.0.0',
+        '# UI End-to-End Test Report: v3.1.0',
         '',
         f'- Total checks: **{len(results)}**',
         f'- Passed: **{len(results) - len(failed)}**',
@@ -174,7 +185,7 @@ try:
         '|---|---|---|'
     ] + [f'| {n} | {s} | {d} |' for n, s, d in results]
 
-    (ROOT / 'UI_TEST_REPORT_v3.0.0.md').write_text('\n'.join(report) + '\n')
+    (ROOT / 'UI_TEST_REPORT_v3.1.0.md').write_text('\n'.join(report) + '\n')
     print('\n'.join(report[:7]))
 
     if failed:
@@ -187,3 +198,5 @@ finally:
         proc.wait(timeout=3)
     except Exception:
         proc.kill()
+    if config_backup is not None:
+        CONFIG.write_bytes(config_backup)

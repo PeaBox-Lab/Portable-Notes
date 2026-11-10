@@ -1,7 +1,7 @@
 @echo off
 setlocal
 cd /d "%~dp0"
-title Portable Notes 3.0.0
+title Portable Notes 3.1.0
 where py >nul 2>nul
 if %errorlevel%==0 (
   py -3 app.py

@@ -10,6 +10,23 @@ A private, local-first Markdown notes and personal knowledge-management applicat
 
 **Repository:** https://github.com/PeaBox-Lab/Portable-Notes
 
+## What's new in 3.1.0 — Constellation
+
+A reliability and polish release on top of 3.0.0 ("Nebula"). Your vault carries over unchanged.
+
+- **Board task toggling** — every card has a round checkbox; click to mark done/not done. The card moves lanes, the Markdown file is rewritten, and a history snapshot is taken first (undo from Note history). New `POST /api/task/toggle` endpoint.
+- **Task-toggle server hang fixed** — the endpoint read the request body twice; the handler no longer blocks.
+- **Front matter integrity** — `favorite`/`pinned` no longer flip to true on any rewrite; `updated` is bumped correctly on toggle.
+- **No more save-on-open churn** — opening/switching notes no longer rewrites notes that haven't changed (their `updated` timestamps stay honest).
+- **Debounced network lookups** — backlinks/related notes refresh 250 ms after you stop typing instead of on every keystroke; knowledge graph repaints only while dragging.
+- **Repo hygiene** — `.gitignore` added; `__pycache__` and the disposable `data/index.db` untracked from git.
+- **E2E suite self-preserving** — `tests/e2e_ui_actions.py` now restores your real `data/config.json` after the run instead of leaving the app pointed at a temp vault.
+- Version 3.1.0 across backend, config, UI, package metadata, launcher and tests; 69/69 E2E checks pass.
+
+### Testing
+
+- 24/24 unit tests pass; 69/69 live UI/action E2E checks pass (see `UI_TEST_REPORT_v3.1.0.md`)
+
 ## What's new in 3.0.0 — Nebula
 
 A full next-generation rebuild inspired by Obsidian, Notion, OneNote, Evernote and Google Keep. Same zero-dependency, local-first architecture (Python stdlib + vanilla JS), rebuilt UI, and a new view system:
