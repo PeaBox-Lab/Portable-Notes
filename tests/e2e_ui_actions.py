@@ -38,17 +38,17 @@ def check(name, fn):
 try:
     for _ in range(50):
         try:
-            if req('/api/health')['version'] == '2.32.0':
+            if req('/api/health')['version'] == '3.0.0':
                 break
         except Exception:
             time.sleep(.1)
     else:
         raise RuntimeError('server did not start')
 
-    check('App shell + cache-busted assets', lambda: ('v=2.32.0' in req('/', raw=True).decode()))
+    check('App shell + cache-busted assets', lambda: ('v=3.0.0' in req('/', raw=True).decode()))
 
     def cache_headers():
-        r = urlopen(BASE + '/static/app.js?v=2.32.0')
+        r = urlopen(BASE + '/static/app.js?v=3.0.0')
         assert 'no-store' in r.headers.get('Cache-Control', '')
         r.read()
 
@@ -164,7 +164,7 @@ try:
 
     failed = [r for r in results if r[1] == 'FAIL']
     report = [
-        '# UI End-to-End Test Report: v2.32.0',
+        '# UI End-to-End Test Report: v3.0.0',
         '',
         f'- Total checks: **{len(results)}**',
         f'- Passed: **{len(results) - len(failed)}**',
@@ -174,7 +174,7 @@ try:
         '|---|---|---|'
     ] + [f'| {n} | {s} | {d} |' for n, s, d in results]
 
-    (ROOT / 'UI_TEST_REPORT_v2.32.0.md').write_text('\n'.join(report) + '\n')
+    (ROOT / 'UI_TEST_REPORT_v3.0.0.md').write_text('\n'.join(report) + '\n')
     print('\n'.join(report[:7]))
 
     if failed:
