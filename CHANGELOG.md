@@ -1,5 +1,35 @@
 # Changelog
 
+## [3.0.0] - 2026-11-10 ("Nebula")
+### Added
+- Multi-view workspace with activity-rail switching: Notes / Board / Graph / Tags / Trash (`Ctrl+Shift+1–5`)
+- Task board view: all checkbox tasks grouped Overdue / Today / Next 7 days / No date / Done, project filter, click-to-open
+- Interactive knowledge graph (deterministic force-directed canvas, folder-colored, pan/zoom/drag, click node to open note)
+- Tag cloud with counts and per-tag note listing
+- Trash view with restore-to-Inbox and empty-trash (backend `/api/trash`, `/api/trash/restore`, `/api/trash/empty`)
+- Knowledge-graph endpoint `/api/graph`; templates endpoint `/api/templates`
+- Quick capture sidebar input (`Ctrl+Shift+N`) — creates timestamped Inbox notes
+- Slash block commands in the editor (`/` menu: heading, task, list, quote, code fence, table, date, wiki link, divider)
+- Templates gallery (toolbar rail button + palette) with `{{title}}` / `{{date}}` substitution
+- Import notes by dropping `.md`/`.markdown`/`.txt` files anywhere onto the window
+- Related notes panel (Evernote-style) from shared tags
+- Focus mode (`Ctrl+\`) for distraction-free writing; print stylesheet
+- New "Nebula" 3.0 design tokens (light/dark), rebuilt rail/sidebar/board/graph/tags/trash styles
+
+### Fixed
+- Frontend application logic was missing after a previous edit — full `static/app.js` rebuilt with all 2.x features intact plus the new views
+- `data/config.json` pointed at a stale e2e temp vault — repointed at the real vault
+- Orphan-attachment scan compared bare filenames to full reference paths — now URL-decodes and matches on relative path or basename, including regular markdown links
+- `app.js` graph rendering crashed on an unqualified variable — fixed and verified in browser
+
+### Changed
+- Version raised to 3.0.0 across backend, config, UI, package metadata, tests, and launcher
+- E2E suite validates `3.0.0` (see `UI_TEST_REPORT_v3.0.0.md`)
+
+### Testing
+- 24/24 unit tests pass
+- 68/68 live UI/action E2E checks pass
+
 ## [2.32.0] - 2026-11-10
 ### Added
 - Version consistency aligned across backend, config, UI, package metadata, and E2E tests

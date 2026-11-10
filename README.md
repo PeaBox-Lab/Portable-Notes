@@ -10,6 +10,30 @@ A private, local-first Markdown notes and personal knowledge-management applicat
 
 **Repository:** https://github.com/PeaBox-Lab/Portable-Notes
 
+## What's new in 3.0.0 — Nebula
+
+A full next-generation rebuild inspired by Obsidian, Notion, OneNote, Evernote and Google Keep. Same zero-dependency, local-first architecture (Python stdlib + vanilla JS), rebuilt UI, and a new view system:
+
+- **Multi-view workspace** with a new activity rail: **Notes → Board → Graph → Tags → Trash** (`Ctrl+Shift+1–5`)
+- **Task board view** — every checkbox task in the vault, grouped Overdue / Today / Next 7 days / No date / Done, filterable by project; click a card to jump to the note
+- **Interactive knowledge graph** — deterministic force-directed canvas rendering of `[[wiki links]]`; drag nodes, scroll to zoom, hover for details, click to open a note; folder-colored with a live legend
+- **Tag cloud** — every tag with usage counts; select a tag to list its notes
+- **Trash view** — browse, restore (back to Inbox) or permanently empty deleted notes
+- **Quick capture** — always-ready inbox input in the sidebar (`Ctrl+Shift+N`), saves as a timestamped Inbox note
+- **Slash block commands** — type `/` in the editor for headings, tasks, lists, quote, code fence, table, date, wiki link, divider (keyboard or mouse)
+- **Templates gallery** — new note from anything in `Templates/` with `{{title}}` / `{{date}}` substitution
+- **Import Markdown** — drag & drop `.md`/`.txt` files anywhere onto the app, or via the command palette
+- **Related notes** — Evernote-style suggestions in the Knowledge panel based on shared tags
+- **Focus mode** — `Ctrl+\` hides all panels for distraction-free writing
+- **Design system 3.0** — new nebula token palette (light/dark), refreshed rail, print stylesheet
+- **New backend endpoints** — `/api/graph`, `/api/templates`, `/api/trash`, `/api/trash/restore`, `/api/trash/empty`
+- **Orphan-attachment scan fixed** — references are URL-decoded and matched by relative path or basename in both regular `[links]()` and `![[embeds]]`
+- Full 2.32.0 feature parity retained: note history & diff, find/replace, tabs, task intelligence reports, palette, favorites/pins, daily notes, export
+
+### Testing
+
+- 24/24 unit tests pass; 68/68 live UI/action E2E checks pass (see `UI_TEST_REPORT_v3.0.0.md`)
+
 ## What's new in 2.32.0
 
 - Corporate UI rebuild: token-driven design system (slate + corporate blue), refined rail, cards, tabs, dialogs, and dark theme with depth
