@@ -50,7 +50,7 @@ def norm_rel(value):
 
 
 def load_cfg():
-    default = {"vault": str(DEFAULT_VAULT), "theme": "system", "version": "2.32.0"}
+    default = {"vault": str(DEFAULT_VAULT), "theme": "system", "version": "3.0.0"}
     if CONFIG.exists():
         try:
             default.update(json.loads(CONFIG.read_text(encoding="utf-8")))
@@ -241,25 +241,35 @@ def orphan_attachments():
     if not attach_dir.exists():
         return []
 
-    # Build a set of attachment names referenced by notes
     ref_attachments = set()
+    from urllib.parse import unquote
+
+    def add_ref(raw):
+        ref = unquote((raw or '').strip().split('#')[0].split('?')[0])
+        if not ref:
+            return
+        ref_attachments.add(ref)
+        ref_attachments.add(ref.replace('\\', '/'))
+        ref_attachments.add(ref.replace('\\', '/').split('/')[-1])
+
     with sqlite3.connect(DATA / "index.db") as db:
         rows = db.execute("SELECT path, content FROM notes").fetchall()
         for row in rows:
             content = row[1] or ""
             import re
-            # Markdown image: ![alt](path) or ![path]
-            for m in re.finditer(r'!\[.*?\]\((.+?)\)', content):
-                ref_attachments.add(m.group(1))
-            # Also handle ![[wiki links]] with attachments
-            for m in re.finditer(r'!\[\[([^\]]+)\]\]', content):
-                ref_attachments.add(m.group(1))
+            # Markdown links/images: [alt](path) or ![alt](path)
+            for m in re.finditer(r'!?\[[^\]]*\]\(([^)]+)\)', content):
+                add_ref(m.group(1))
+            # Wiki embeds/links: ![[path|label]] or [[path]]
+            for m in re.finditer(r'!?\[\[([^\]]+)\]\]', content):
+                add_ref(m.group(1).split('|')[0])
 
     attach_files = {}
     for p in attach_dir.rglob("*"):
         if p.is_file():
+            rel = p.relative_to(vault_path).as_posix()
             name = p.name
-            if name not in ref_attachments:
+            if rel not in ref_attachments and name not in ref_attachments:
                 attach_files[name] = {
                     "path": p.relative_to(vault_path).as_posix(),
                     "name": name,

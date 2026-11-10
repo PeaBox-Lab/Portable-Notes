@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#0d1526">
-<title>Portable Notes 2.32.0</title>
-<link rel="stylesheet" href="/static/style.css?v=2.32.0">
+<title>Portable Notes 3.0.0</title>
+<link rel="stylesheet" href="/static/style.css?v=3.0.0">
 <script>
 /* Guard: the UI cannot run over file:// — the local Python server must be running. */
 if (location.protocol === 'file:') {
@@ -18,42 +18,37 @@ if (location.protocol === 'file:') {
 <body>
 <div class="app">
 
-  <!-- ───────────────────────── 1 · Icon rail ───────────────────────── -->
+  <!-- ───────────────────────── 1 · Activity rail ───────────────────────── -->
   <aside class="rail" aria-label="Primary actions">
-    <div class="logo" title="Portable Notes">P</div>
-    <button id="new" title="New note · Ctrl N">+</button>
+    <div class="logo" title="Portable Notes 3.0 Nebula">N</div>
+    <button id="new" title="New note · Ctrl+N">+</button>
     <button id="all" class="active" title="All notes">▤</button>
-    <button id="daily" title="Daily note · Ctrl D">◫</button>
+    <button id="daily" title="Daily note · Ctrl+D">◧</button>
     <button id="fav" title="Favorites">★</button>
+    <div class="rail-rule" role="separator"></div>
+    <button id="boardView" class="viewbtn" data-view="board" title="Task board · Ctrl+2">▦</button>
+    <button id="graphView" class="viewbtn" data-view="graph" title="Knowledge graph · Ctrl+3">◉</button>
+    <button id="tagsView" class="viewbtn" data-view="tags" title="Tag cloud · Ctrl+4">#</button>
+    <button id="trashView" class="viewbtn" data-view="trash" title="Trash · Ctrl+5">⌫</button>
     <div class="grow"></div>
-    <button id="commands" title="Command palette · Ctrl ⇧ P">⌘</button>
+    <button id="quickCaptureBtn" title="Quick capture · Ctrl+Shift+N">⌁</button>
+    <button id="templatesBtn" title="New note from template">▤</button>
+    <button id="commands" title="Command palette · Ctrl+Shift+P">⌘</button>
     <button id="theme" title="Theme · cycle light / dark / auto">◐</button>
+    <button id="focusToggle" title="Focus mode · Ctrl+\ (hide panels)">⊙</button>
     <a href="/api/export" title="Export vault as ZIP backup">⇩</a>
   </aside>
 
-  <!-- ───────────────────────── 3 · History ───────────────────────── -->
-  <div class="modal" id="historyDiffModal" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:1000;background:#fff;padding:20px;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,0.15);">
-    <h3>Compare History Snapshots</h3>
-    <div class="diff-panel">
-      <div class="diff-header">
-        <label>Snapshot 1</label>
-        <input type="text" id="diff1" class="diff-id" value="">
-      </div>
-      <div class="diff-header">
-        <label>Snapshot 2</label>
-        <input type="text" id="diff2" class="diff-id" value="">
-      </div>
-      <div class="diff-content">
-        <div id="diff1-content"></div>
-        <div id="diff2-content"></div>
-        <div id="diff-segments"></div>
-      </div>
-    </div>
-  </div>
-
   <!-- ───────────────────────── 2 · Sidebar ───────────────────────── -->
   <aside class="nav" aria-label="Notes navigation">
-    <div class="brand"><b>Portable Notes</b><small>MARKDOWN · PRIVATE · PORTABLE</small></div>
+    <div class="brand"><b>Portable Notes</b><small>NEBULA · MARKDOWN · PRIVATE</small></div>
+
+    <div class="quickcapture" title="Jump into the inbox with a fresh note">
+      <span class="qc-glyph">⌁</span>
+      <input id="quickCapture" placeholder="Quick capture… Enter sends to Inbox" autocomplete="off" spellcheck="false" aria-label="Quick capture">
+      <kbd>Ctrl ⇧ N</kbd>
+    </div>
+
     <div class="search">
       <span>⌕</span>
       <input id="q" placeholder="Search your vault" autocomplete="off" spellcheck="false">
@@ -62,7 +57,7 @@ if (location.protocol === 'file:') {
     <div class="navhead">
       <b id="navtitle">Notes</b>
       <span class="navhead-actions">
-        <button id="saveSearch" title="Save current search">☆</button>
+        <button id="saveSearch" title="Save current search">⊕</button>
         <button id="folder" title="New folder">+</button>
       </span>
     </div>
@@ -79,56 +74,119 @@ if (location.protocol === 'file:') {
     <div id="list" class="list"></div>
   </aside>
 
-  <!-- ───────────────────────── 3 · Editor ───────────────────────── -->
+  <!-- ───────────────────────── 3 · Main ───────────────────────── -->
   <main>
-    <header>
-      <input id="title" class="title" placeholder="Untitled" spellcheck="false">
-      <span id="state" class="state is-ready">Ready</span>
-      <button id="history" title="Note history · Ctrl H">⏱</button>
-      <button id="pin" title="Pin">⌖</button>
-      <button id="star" title="Favorite">☆</button>
-      <button id="mode" title="Toggle view mode · Ctrl ⇧ V">Split</button>
-    </header>
 
-    <div class="props">
-      <label>Folder <input id="folderName" spellcheck="false"></label>
-      <label>Tags <input id="tags" placeholder="tag, another" spellcheck="false"></label>
-      <span id="updated"></span>
-    </div>
+    <!-- 3a · Notes editor view -->
+    <section id="view-notes" class="view active" aria-label="Notes editor">
+      <header>
+        <input id="title" class="title" placeholder="Untitled" spellcheck="false">
+        <span id="state" class="state is-ready">Ready</span>
+        <button id="history" title="Note history · Ctrl+H">⏱</button>
+        <button id="deleteNote" title="Move to trash">⌫</button>
+        <button id="pin" title="Pin">⌖</button>
+        <button id="star" title="Favorite">★</button>
+        <button id="mode" title="Toggle view mode · Ctrl+Shift+V">Split</button>
+      </header>
 
-    <div id="toolbar" class="toolbar" role="toolbar" aria-label="Editor tools">
-      <button type="button" data-cmd="bold" title="Bold"><b>B</b></button>
-      <button type="button" data-cmd="italic" title="Italic"><i>I</i></button>
-      <button type="button" data-cmd="h1" title="Heading 1">H1</button>
-      <button type="button" data-cmd="h2" title="Heading 2">H2</button>
-      <button type="button" data-cmd="list" title="Bullet list">•≡</button>
-      <button type="button" data-cmd="task" title="Task checkbox">☐</button>
-      <button type="button" data-cmd="quote" title="Blockquote">❝</button>
-      <button type="button" data-cmd="code" title="Inline code">‹›</button>
-      <button type="button" data-cmd="table" title="Insert table">▦</button>
-      <button type="button" data-cmd="hr" title="Horizontal rule">—</button>
-      <button type="button" data-cmd="date" title="Today's date">Date</button>
-      <button type="button" data-cmd="wiki" title="Wiki link">[[ ]]</button>
-      <button type="button" data-cmd="attach" title="Attach file (uploads to vault/Attachments)">Attach</button>
-      <button type="button" data-cmd="orphans" title="Find orphan attachments not referenced by any note">Orphans</button>
-      <button type="button" data-cmd="diff" title="Compare note history snapshots">Diff</button>
-    </div>
+      <div class="props">
+        <label>Folder <input id="folderName" spellcheck="false"></label>
+        <label>Tags <input id="tags" placeholder="tag, another" spellcheck="false"></label>
+        <span id="updated"></span>
+      </div>
 
-    <div id="tabs" class="tabs"></div>
+      <div id="toolbar" class="toolbar" role="toolbar" aria-label="Editor tools">
+        <button type="button" data-cmd="bold" title="Bold"><b>B</b></button>
+        <button type="button" data-cmd="italic" title="Italic"><i>I</i></button>
+        <button type="button" data-cmd="h1" title="Heading 1">H1</button>
+        <button type="button" data-cmd="h2" title="Heading 2">H2</button>
+        <button type="button" data-cmd="list" title="Bullet list">•≡</button>
+        <button type="button" data-cmd="task" title="Task checkbox">☐</button>
+        <button type="button" data-cmd="quote" title="Blockquote">❞</button>
+        <button type="button" data-cmd="code" title="Inline code">‹›</button>
+        <button type="button" data-cmd="table" title="Insert table">▦</button>
+        <button type="button" data-cmd="hr" title="Horizontal rule">—</button>
+        <button type="button" data-cmd="date" title="Today's date">Date</button>
+        <button type="button" data-cmd="wiki" title="Wiki link">[[ ]]</button>
+        <button type="button" data-cmd="attach" title="Attach file (uploads to vault/Attachments)">Attach</button>
+        <button type="button" data-cmd="orphans" title="Find orphan attachments not referenced by any note">Orphans</button>
+        <button type="button" data-cmd="diff" title="Compare note history snapshots">Diff</button>
+        <span class="toolbar-hint" title="Type / at the start of a line in the editor">Type <kbd>/</kbd> for blocks</span>
+      </div>
 
-    <section id="work">
-      <textarea id="editor" spellcheck="true" placeholder="Start writing in Markdown…&#10;&#10;Rich features: [[wiki links]], - [ ] tasks with due: dates, #tags."></textarea>
-      <article id="preview" class="markdown hidden"></article>
+      <div id="tabs" class="tabs"></div>
+
+      <section id="work">
+        <textarea id="editor" spellcheck="true" placeholder="Start writing in Markdown…&#10;&#10;Rich features: [[wiki links]], - [ ] tasks with due: dates, #tags. Type / for block commands."></textarea>
+        <article id="preview" class="markdown hidden"></article>
+      </section>
+
+      <footer>
+        <span id="words">0 words</span>
+        <span id="chars">0 chars</span>
+        <span id="reading">1 min read</span>
+        <span class="grow"></span>
+        <span>Markdown</span>
+        <span id="vaultPath">Local vault</span>
+      </footer>
     </section>
 
-    <footer>
-      <span id="words">0 words</span>
-      <span id="chars">0 chars</span>
-      <span id="reading">1 min read</span>
-      <span class="grow"></span>
-      <span>Markdown</span>
-      <span id="vaultPath">Local vault</span>
-    </footer>
+    <!-- 3b · Task board view -->
+    <section id="view-board" class="view" aria-label="Task board">
+      <header class="view-head">
+        <div>
+          <h2>Task board</h2>
+          <p class="dim">Every <code>- [ ]</code> task in your vault, grouped by urgency. Click a card to open its note.</p>
+        </div>
+        <span class="grow"></span>
+        <select id="boardProject" class="minisel" title="Filter by project"><option value="">All projects</option></select>
+        <button id="boardRefresh" class="btn small">Refresh</button>
+      </header>
+      <div id="board" class="board" aria-live="polite"></div>
+    </section>
+
+    <!-- 3c · Knowledge graph view -->
+    <section id="view-graph" class="view" aria-label="Knowledge graph">
+      <header class="view-head">
+        <div>
+          <h2>Knowledge graph</h2>
+          <p class="dim">Notes linked by <code>[[wiki links]]</code>. Drag nodes, scroll to zoom, click a node to open it.</p>
+        </div>
+        <span class="grow"></span>
+        <span id="graphCount" class="dim"></span>
+        <button id="graphRelayout" class="btn small">Re-layout</button>
+      </header>
+      <div class="graphwrap">
+        <canvas id="graphCanvas" role="img" aria-label="Force-directed graph of linked notes"></canvas>
+        <div id="graphTip" class="graph-tip" hidden></div>
+        <div id="graphLegend" class="graph-legend"></div>
+      </div>
+    </section>
+
+    <!-- 3d · Tags view -->
+    <section id="view-tags" class="view" aria-label="Tags">
+      <header class="view-head">
+        <div>
+          <h2>Tags</h2>
+          <p class="dim">Every tag in the vault. Select a tag to see its notes.</p>
+        </div>
+      </header>
+      <div id="tagCloud" class="tag-cloud"></div>
+      <div id="tagResults" class="tag-results"></div>
+    </section>
+
+    <!-- 3e · Trash view -->
+    <section id="view-trash" class="view" aria-label="Trash">
+      <header class="view-head">
+        <div>
+          <h2>Trash</h2>
+          <p class="dim">Deleted notes are kept here. Restore moves a note back into Inbox.</p>
+        </div>
+        <span class="grow"></span>
+        <button id="emptyTrash" class="btn danger small">Empty trash</button>
+      </header>
+      <div id="trashList" class="trash-list"></div>
+    </section>
   </main>
 
   <!-- ───────────────────────── 4 · Knowledge panel ───────────────────────── -->
@@ -137,14 +195,17 @@ if (location.protocol === 'file:') {
     <section><b>Contents</b><div id="outline"></div></section>
     <section><b>Outgoing links</b><div id="links"></div></section>
     <section><b>Backlinks</b><div id="backlinks"></div></section>
-    <section><b>Quick help</b>
+    <section><b>Related notes</b><div id="related"></div></section>
+    <section class="ctx-help"><b>Quick help</b>
       <p><kbd>Ctrl N</kbd> New note</p>
       <p><kbd>Ctrl S</kbd> Save</p>
+      <p><kbd>Ctrl ⇧ 1–5</kbd> Notes · Board · Graph · Tags · Trash</p>
       <p><kbd>Ctrl F</kbd> Find &amp; replace</p>
-      <p><kbd>Ctrl H</kbd> Note history</p>
-      <p><kbd>Ctrl D</kbd> Daily note</p>
-      <p><kbd>Ctrl K</kbd> Search vault</p>
+      <p><kbd>Ctrl ⇧ V</kbd> Edit · Split · Preview</p>
+      <p><kbd>Ctrl \</kbd> Focus mode</p>
+      <p><kbd>Ctrl ⇧ N</kbd> Quick capture</p>
       <p><kbd>Ctrl ⇧ P</kbd> Commands</p>
+      <p><kbd>/</kbd> Block commands in editor</p>
       <p><kbd>[[Title]]</kbd> Wiki link</p>
     </section>
   </aside>
@@ -171,6 +232,16 @@ if (location.protocol === 'file:') {
   <footer><button type="button" class="btn" id="historyRefresh">Refresh</button></footer>
 </dialog>
 
+<dialog id="historyDiffDialog" class="overlay">
+  <header><b>Compare history snapshots</b><span class="grow"></span><button class="x" id="historyDiffClose">×</button></header>
+  <div class="body">
+    <label>Snapshot 1 <select id="diff1" class="diff-id"></select></label>
+    <label>Snapshot 2 <select id="diff2" class="diff-id"></select></label>
+    <div id="diff-segments" class="diff-content"></div>
+  </div>
+  <footer><button type="button" class="btn primary" id="diffCompare">Compare</button></footer>
+</dialog>
+
 <dialog id="reportDialog" class="overlay">
   <header><b id="reportTitle">Report</b><span class="grow"></span><button type="button" class="btn small" id="reportCopy">Copy</button><button class="x" id="reportClose">×</button></header>
   <pre id="reportBody" class="report-body"></pre>
@@ -193,9 +264,18 @@ if (location.protocol === 'file:') {
   <div id="commandList"></div>
 </dialog>
 
+<dialog id="templatesDialog" class="overlay">
+  <header><b>New from template</b><span class="grow"></span><button class="x" id="templatesClose">×</button></header>
+  <div id="templateList" class="template-list"></div>
+  <footer><span class="dim">Templates live in <code>Templates/</code> in your vault.</span></footer>
+</dialog>
+
+<div id="slashMenu" class="slash-menu" hidden role="listbox" aria-label="Block commands"></div>
+<div id="dropOverlay" aria-hidden="true"><div>Drop Markdown files to import them into <b>Inbox</b></div></div>
 <div id="toast"></div>
-<input type="file" id="fileGate" hidden>
+<input type="file" id="fileGate" hidden multiple accept=".md,.markdown,.txt">
+<input type="file" id="importGate" hidden multiple accept=".md,.markdown,.txt">
 <noscript><p style="position:fixed;inset:0;background:#fff;color:#0f172a;padding:40px;font:14px system-ui">Portable Notes requires JavaScript.</p></noscript>
-<script src="/static/app.js?v=2.32.0"></script>
+<script src="/static/app.js?v=3.0.0"></script>
 </body>
 </html>

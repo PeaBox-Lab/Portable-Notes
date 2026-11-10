@@ -1,6 +1,6 @@
 
 #!/usr/bin/env python3
-# Portable Notes 2.32.0: modular backend with api/ route modules.
+# Portable Notes 3.0.0: modular backend with api/ route modules.
 from __future__ import annotations
 import argparse, difflib, hashlib, html, io, json, mimetypes, os, re, shutil, sqlite3, threading, time, webbrowser, zipfile
 from datetime import datetime, timedelta, timezone
@@ -28,7 +28,7 @@ def norm_rel(value):
     return value
 
 def load_cfg():
-    default={'vault':str(DEFAULT_VAULT),'theme':'system','version':'2.32.0'}
+    default={'vault':str(DEFAULT_VAULT),'theme':'system','version':'3.0.0'}
     if CONFIG.exists():
         try: default.update(json.loads(CONFIG.read_text(encoding='utf-8')))
         except Exception: pass
@@ -107,20 +107,31 @@ def orphan_attachments():
     if not attach_dir.exists():
         return []
     ref_attachments = set()
+    from urllib.parse import unquote
+
+    def add_ref(raw):
+        ref = unquote((raw or '').strip().split('#')[0].split('?')[0])
+        if not ref:
+            return
+        ref_attachments.add(ref)
+        ref_attachments.add(ref.replace('\\', '/'))
+        ref_attachments.add(ref.replace('\\', '/').split('/')[-1])
+
     with sqlite3.connect(DB) as db:
         rows = db.execute("SELECT path, content FROM notes").fetchall()
         for row in rows:
             content = row[1] or ""
             import re
-            for m in re.finditer(r'!\[.*?\]\((.+?)\)', content):
-                ref_attachments.add(m.group(1))
-            for m in re.finditer(r'!\[\[([^\]]+)\]\]', content):
-                ref_attachments.add(m.group(1))
+            for m in re.finditer(r'!?\[[^\]]*\]\(([^)]+)\)', content):
+                add_ref(m.group(1))
+            for m in re.finditer(r'!?\[\[([^\]]+)\]\]', content):
+                add_ref(m.group(1).split('|')[0])
     attach_files = {}
     for p in attach_dir.rglob("*"):
         if p.is_file():
+            rel = p.relative_to(vault_path).as_posix()
             name = p.name
-            if name not in ref_attachments:
+            if rel not in ref_attachments and name not in ref_attachments:
                 attach_files[name] = {
                     "path": p.relative_to(vault_path).as_posix(),
                     "name": name,
@@ -842,18 +853,51 @@ class Handler(SimpleHTTPRequestHandler):
                 return self.send_json(diff)
             if u.path=='/api/orphans':
                 return self.send_json(orphan_attachments())
+            if u.path=='/api/graph':
+                refresh()
+                with sqlite3.connect(DB) as db: db.row_factory=sqlite3.Row; rows=db.execute('SELECT path,title,folder,tags,links FROM notes').fetchall()
+                nodes=[]; by_title={}
+                for r in rows:
+                    d=dict(r)
+                    try: tags=json.loads(d['tags'] or '[]')
+                    except Exception: tags=[]
+                    try: links=json.loads(d['links'] or '[]')
+                    except Exception: links=[]
+                    nodes.append({'path':d['path'],'title':d['title'],'folder':d['folder'] or '','tags':tags,'links':links})
+                    by_title.setdefault(str(d['title'] or '').strip().lower(),d['path'])
+                edges=set()
+                for n in nodes:
+                    for link in n['links']:
+                        target=by_title.get(str(link).strip().lower())
+                        if target and target!=n['path']:
+                            a,b=sorted([n['path'],target]); edges.add((a,b))
+                for n in nodes: n.pop('links',None)
+                return self.send_json({'nodes':nodes,'edges':[list(e) for e in sorted(edges)]})
+            if u.path=='/api/templates':
+                tdir=vault()/'Templates'; items=[]
+                if tdir.exists():
+                    for p in sorted(tdir.glob('*.md'),key=lambda x:x.name.lower()):
+                        items.append({'name':p.stem,'path':p.relative_to(vault()).as_posix(),'content':p.read_text(encoding='utf-8',errors='replace')})
+                return self.send_json(items)
+            if u.path=='/api/trash':
+                trash=vault()/'.portable-notes'/'trash'; items=[]
+                if trash.exists():
+                    for p in sorted(trash.iterdir(),key=lambda x:x.stat().st_mtime,reverse=True):
+                        if p.is_file():
+                            items.append({'name':p.name,'display':re.sub(r'-\d{10}(?=\.[^.]+$)','',p.name),'size':p.stat().st_size,'modified':datetime.fromtimestamp(p.stat().st_mtime).isoformat()})
+                return self.send_json(items)
             if u.path=='/api/export':
                 mem=io.BytesIO()
                 with zipfile.ZipFile(mem,'w',zipfile.ZIP_DEFLATED) as z:
                     for p in vault().rglob('*'):
                         if p.is_file() and '.portable-notes' not in p.parts: z.write(p,p.relative_to(vault()))
-                    z.writestr('portable-notes-backup.json',json.dumps({'version':'2.32.0','created':iso(),'vault':str(vault())},indent=2))
+                    z.writestr('portable-notes-backup.json',json.dumps({'version':'3.0.0','created':iso(),'vault':str(vault())},indent=2))
                 raw=mem.getvalue(); self.send_response(200); self.send_header('Content-Type','application/zip'); self.send_header('Content-Disposition','attachment; filename="portable-notes-vault-backup.zip"'); self.send_header('Content-Length',str(len(raw))); self.end_headers(); return self.wfile.write(raw)
             if u.path=='/api/attachment':
                 rel=norm_rel(q.get('path',[''])[0]); p=md_path(rel)
                 if not p.exists() or p.is_dir(): return self.fail('Attachment not found',404)
                 raw=p.read_bytes(); self.send_response(200); self.send_header('Content-Type',mimetypes.guess_type(p.name)[0] or 'application/octet-stream'); self.send_header('Content-Length',str(len(raw))); self.end_headers(); return self.wfile.write(raw)
-            if u.path=='/api/health': return self.send_json({'ok':True,'version':'2.32.0','vault':str(vault()),'notes':rebuild()})
+            if u.path=='/api/health': return self.send_json({'ok':True,'version':'3.0.0','vault':str(vault()),'notes':rebuild()})
             if u.path=='/': self.path='/static/index.html'
             return super().do_GET()
         except Exception as e: return self.fail(e)
@@ -873,6 +917,19 @@ class Handler(SimpleHTTPRequestHandler):
                 rel=p.relative_to(vault()).as_posix(); t=iso(); p.write_text(front({'id':note_id(rel),'title':title,'created':t,'updated':t,'tags':b.get('tags',[])},b.get('content','')),encoding='utf-8'); return self.send_json(index_note(p),201)
             if self.path=='/api/folder':
                 p=md_path(norm_rel(b.get('path','New Folder'))); p.mkdir(parents=True,exist_ok=True); return self.send_json({'ok':True,'path':p.relative_to(vault()).as_posix()},201)
+            if self.path=='/api/trash/restore':
+                name=safe_name(b.get('name',''),''); trash=vault()/'.portable-notes'/'trash'; src=trash/name
+                if not name or not src.exists() or not src.is_file(): return self.fail('Trash item not found',404)
+                dest_dir=vault()/'Inbox'; dest_dir.mkdir(parents=True,exist_ok=True)
+                stem=re.sub(r'-\d{10}$','',src.stem); dest=dest_dir/(stem+src.suffix); i=1
+                while dest.exists(): i+=1; dest=dest_dir/f'{stem}-{i}{src.suffix}'
+                shutil.move(str(src),str(dest)); return self.send_json({'ok':True,'path':dest.relative_to(vault()).as_posix()})
+            if self.path=='/api/trash/empty':
+                trash=vault()/'.portable-notes'/'trash'; removed=0
+                if trash.exists():
+                    for p in trash.iterdir():
+                        if p.is_file(): p.unlink(); removed+=1
+                return self.send_json({'ok':True,'removed':removed})
             if self.path=='/api/rebuild': return self.send_json({'ok':True,'notes':rebuild()})
             return self.fail('Not found',404)
         except Exception as e:return self.fail(e)
@@ -910,7 +967,7 @@ def main():
     global CFG
     if args.vault: CFG['vault']=str(Path(args.vault).expanduser().resolve()); save_cfg()
     seed(); rebuild(); os.chdir(ROOT); server=ThreadingHTTPServer((HOST,args.port),Handler); url=f'http://{HOST}:{args.port}'
-    print(f'Portable Notes 2.32.0 running at {url}\nVault: {vault()}\nPress Ctrl+C to stop.')
+    print(f'Portable Notes 3.0.0 running at {url}\nVault: {vault()}\nPress Ctrl+C to stop.')
     if not args.no_browser: threading.Timer(.5,lambda:webbrowser.open(url)).start()
     try:server.serve_forever()
     except KeyboardInterrupt:print('\nStopped.')
